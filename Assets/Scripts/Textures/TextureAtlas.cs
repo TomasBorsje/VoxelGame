@@ -1,16 +1,18 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class TextureAtlas
 {
     private static readonly string BLOCK_TEXTURES = "Textures/Block";
     private const string AtlasShaderName = "HDRP/Lit";
     private const int TEXTURE_SIZE = 16;
-    private Material _atlasMaterial;
+    private Material _opaqueMaterial;
+    private Material _transparentMaterial;
     private Dictionary<string, Rect> uvDict = new();
 
-    public Material AtlasMaterial { get => _atlasMaterial; }
+    public Material AtlasMaterial { get => _opaqueMaterial; }
     public TextureAtlas()
     {
         Texture2D[] textures = Resources.LoadAll<Texture2D>(BLOCK_TEXTURES);
@@ -34,10 +36,15 @@ public class TextureAtlas
             uvDict["game:"+textures[i].name] = rects[i];
         }
 
-        // generate material
-        _atlasMaterial = new Material(Shader.Find(AtlasShaderName));
-        _atlasMaterial.mainTexture = atlasTex;
-        _atlasMaterial.name = "TextureAtlasMat";
+        // generate materials
+        _opaqueMaterial = new Material(Shader.Find(AtlasShaderName));
+        _opaqueMaterial.mainTexture = atlasTex;
+        _opaqueMaterial.name = "OpaqueAtlasMat";
+
+        // generate transparent material
+        _transparentMaterial = new Material(Shader.Find(AtlasShaderName));
+        _transparentMaterial.mainTexture = atlasTex;
+        _transparentMaterial.name = "TransparentAtlasMat";
 
         Debug.Log("Loaded texture atlas!");
     }

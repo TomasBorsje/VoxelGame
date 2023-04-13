@@ -4,16 +4,19 @@ using UnityEngine;
 
 public class BlockBreaking : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
+    int blockId = 0;
     void Update()
     {
-        if(Input.GetKeyDown(KeyCode.Mouse0))
+        if(Input.mouseScrollDelta.y > 0)
+        {
+            blockId++;
+        }
+        if (Input.mouseScrollDelta.y < 0)
+        {
+            blockId--;
+        }
+
+        if (Input.GetKeyDown(KeyCode.Mouse0))
         {
             RaycastHit hit;
             // Does the ray intersect any objects excluding the player layer
@@ -36,7 +39,7 @@ public class BlockBreaking : MonoBehaviour
                 Vector3 backwardHit = hit.point - transform.TransformDirection(Vector3.forward) * 0.001f;
                 Debug.Log($"Did Hit at {backwardHit.x},{backwardHit.y},{backwardHit.z}");
                 (Chunk, Vector3Int) chunkPos = WorldGenHandler.INSTANCE.WorldPosToChunkPos(backwardHit);
-                chunkPos.Item1.SetBlock(chunkPos.Item2.x, chunkPos.Item2.y, chunkPos.Item2.z, Registries.PLANKS);
+                chunkPos.Item1.SetBlock(chunkPos.Item2.x, chunkPos.Item2.y, chunkPos.Item2.z, blockId % 2 == 0 ? Registries.PLANKS : Registries.GLASS);
             }
         }
     }
