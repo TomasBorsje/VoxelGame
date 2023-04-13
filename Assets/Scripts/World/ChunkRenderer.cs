@@ -4,10 +4,10 @@ using UnityEngine;
 using static Chunk;
 public class ChunkRenderer : MonoBehaviour
 {
-    public enum RenderLayer { Opaque, Transparent, Model }
+    public enum RenderLayer { Opaque, Transparent, Water, Model }
 
     Chunk chunk;
-    RenderLayer type;
+    RenderLayer layer;
     MeshRenderer meshRenderer;
     MeshFilter meshFilter;
     MeshCollider meshCollider;
@@ -17,11 +17,11 @@ public class ChunkRenderer : MonoBehaviour
     public void Init(Chunk chunk, RenderLayer type)
     {
         this.chunk = chunk;
-        this.type = type;
+        this.layer = type;
         mesh = new Mesh();
         mesh.name = "ChunkMesh-"+type.ToString();
         meshRenderer = gameObject.AddComponent<MeshRenderer>();
-        meshRenderer.material = Registries.TextureAtlas.AtlasMaterial;
+        meshRenderer.material = Registries.TextureAtlas.GetAtlasMaterial(type);
         meshCollider = gameObject.AddComponent<MeshCollider>();
         meshFilter = gameObject.AddComponent<MeshFilter>();
         meshFilter.mesh = mesh;
@@ -45,6 +45,9 @@ public class ChunkRenderer : MonoBehaviour
                 for (int y = 0; y < CHUNK_HEIGHT; y++)
                 {
                     Block block = blocks[x, y, z];
+                    // Only render our selected type!
+                    if(block.RenderLayer != layer) { continue; }
+
                     Vector3 blockPos = new Vector3(x, y, z);
                     // Render a block
                     if (block != Registries.AIR)
@@ -128,11 +131,14 @@ public class ChunkRenderer : MonoBehaviour
             }
         }
 
-        mesh.SetVertices(vertices);
-        mesh.SetUVs(0, uvs);
-        mesh.SetTriangles(triangles, 0);
-        mesh.RecalculateNormals();
-        mesh.RecalculateBounds();
-        meshCollider.sharedMesh = mesh;
+        if (vertices.Count > 0)
+        {
+            mesh.SetVertices(vertices);
+            mesh.SetUVs(0, uvs);
+            mesh.SetTriangles(triangles, 0);
+            mesh.RecalculateNormals();
+            mesh.RecalculateBounds();
+            meshCollider.sharedMesh = mesh;
+        }
     }
 }

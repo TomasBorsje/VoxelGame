@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static ChunkRenderer;
 
 public class Block : IHasId
 {
@@ -9,17 +10,18 @@ public class Block : IHasId
 
     private string _name;
     private string _id;
-    private bool _transparent;
+    private RenderLayer _layer;
     public string Name { get => _name; }
     public string Id { get => _id; }
-    public bool Transparent { get => _transparent; }
+    public RenderLayer RenderLayer { get => _layer; }
 
-    public Block(string id, string name, bool transparent)
+    public Block(string id, string name, RenderLayer layer)
     {
         _id = id;
         _name = name;
-        _transparent = transparent;
+        _layer = layer;
     }
 
+    public bool Transparent => _layer == RenderLayer.Transparent || _layer == RenderLayer.Water;
     public bool Empty => _id == "game:air";
 }

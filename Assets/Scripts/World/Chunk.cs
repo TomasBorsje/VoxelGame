@@ -17,12 +17,8 @@ public class Chunk : MonoBehaviour
     int rootX, rootY, rootZ;
     int chunkX, chunkZ;
 
-    ChunkRenderer[] renderers = new ChunkRenderer[Enum.GetNames(typeof(RenderLayer)).Length];
+    ChunkRenderer[] renderers = new ChunkRenderer[Enum.GetValues(typeof(RenderLayer)).Length];
 
-    MeshRenderer meshRenderer;
-    MeshFilter meshFilter;
-    MeshCollider meshCollider;
-    Mesh mesh;
     bool shouldUpdate = false;
     bool initialized = false;
 
@@ -30,20 +26,24 @@ public class Chunk : MonoBehaviour
     Block[,,] blocks = new Block[CHUNK_WIDTH, CHUNK_HEIGHT, CHUNK_WIDTH];
     public void Init()
     {
-        mesh = new Mesh();
-        mesh.name = "ChunkMesh";
-        meshRenderer = gameObject.AddComponent<MeshRenderer>();
-        meshRenderer.material = Registries.TextureAtlas.AtlasMaterial;
-        meshCollider = gameObject.AddComponent<MeshCollider>();
-        meshFilter = gameObject.AddComponent<MeshFilter>();
-        meshFilter.mesh = mesh;
-
         rootX = (int)transform.position.x;
         rootY = (int)transform.position.y;
         rootZ = (int)transform.position.z;
 
         chunkX = Mathf.FloorToInt(transform.position.x / (CHUNK_WIDTH * BLOCK_SIZE));
         chunkZ = Mathf.FloorToInt(transform.position.z / (CHUNK_WIDTH * BLOCK_SIZE));
+
+        // Create our chunk renderers as child gameobjects
+        int i = 0;
+        foreach(RenderLayer layer in Enum.GetValues(typeof(RenderLayer)))
+        {
+            GameObject renderer = new GameObject(layer.ToString() + " Renderer");
+            renderer.transform.SetParent(gameObject.transform);
+            renderer.transform.localPosition = Vector3.zero;
+            ChunkRenderer comp = renderer.AddComponent<ChunkRenderer>();
+            comp.Init(this, layer);
+            renderers[i++] = comp;
+        }
 
         // TODO: World gen function
         // Init to air
@@ -124,110 +124,6 @@ public class Chunk : MonoBehaviour
         {
             renderer.RenderChunk();
         }
-        shouldUpdate = false;
-
-        mesh.Clear();
-        List<Vector3> vertices = new List<Vector3>();
-        List<Vector2> uvs = new List<Vector2>();
-        List<int> triangles = new List<int>();
-
-        for (int x = 0; x < CHUNK_WIDTH; x++)
-        {
-            for (int z = 0; z < CHUNK_WIDTH; z++)
-            {
-                for (int y = 0; y < CHUNK_HEIGHT; y++)
-                {
-                    Block block = blocks[x, y, z];
-                    Vector3 blockPos = new Vector3(x, y, z);
-                    // Render a block
-                    if (block != Registries.AIR)
-                    {
-                        // Top
-                        if (y == CHUNK_HEIGHT - 1 || blocks[x, y + 1, z].Empty || (!block.Transparent && blocks[x, y + 1, z].Transparent))
-                        {
-                            MeshUtils.AddBlockFaceVertices(block, vertices, uvs, triangles, blockPos, MeshUtils.FaceDirection.Top);
-                        }
-                        // Bottom
-                        if (y == 0 || blocks[x, y - 1, z].Empty || (!block.Transparent && blocks[x, y - 1, z].Transparent))
-                        {
-                            MeshUtils.AddBlockFaceVertices(block, vertices, uvs, triangles, blockPos, MeshUtils.FaceDirection.Bottom);
-                        }
-                        // North
-                        if (z == CHUNK_WIDTH - 1)
-                        {
-                            if (WorldGenHandler.INSTANCE.ChunkLoaded(chunkX, chunkZ + 1))
-                            {
-                                Chunk neighbour = WorldGenHandler.INSTANCE.GetChunk(chunkX, chunkZ + 1);
-                                if (neighbour.GetBlock(x, y, 0).Empty || (!block.Transparent && neighbour.GetBlock(x, y, 0).Transparent))
-                                {
-                                    MeshUtils.AddBlockFaceVertices(block, vertices, uvs, triangles, blockPos, MeshUtils.FaceDirection.North);
-                                }
-                            }
-                        }
-                        else if (blocks[x, y, z + 1].Empty || (!block.Transparent && blocks[x, y, z + 1].Transparent))
-                        {
-                            MeshUtils.AddBlockFaceVertices(block, vertices, uvs, triangles, blockPos, MeshUtils.FaceDirection.North);
-                        }
-                        // South
-                        if (z == 0)
-                        {
-                            if (WorldGenHandler.INSTANCE.ChunkLoaded(chunkX, chunkZ - 1))
-                            {
-                                Chunk neighbour = WorldGenHandler.INSTANCE.GetChunk(chunkX, chunkZ - 1);
-                                if (neighbour.GetBlock(x, y, CHUNK_WIDTH-1).Empty || (!block.Transparent && neighbour.GetBlock(x, y, CHUNK_WIDTH - 1).Transparent))
-                                {
-                                    MeshUtils.AddBlockFaceVertices(block, vertices, uvs, triangles, blockPos, MeshUtils.FaceDirection.South);
-                                }
-                            }
-                        }
-                        else if (blocks[x, y, z - 1].Empty || (!block.Transparent && blocks[x, y, z - 1].Transparent))
-                        {
-                            MeshUtils.AddBlockFaceVertices(block, vertices, uvs, triangles, blockPos, MeshUtils.FaceDirection.South);
-                        }
-                        // East
-                        if (x == CHUNK_WIDTH - 1)
-                        {
-                            if (WorldGenHandler.INSTANCE.ChunkLoaded(chunkX + 1, chunkZ))
-                            {
-                                Chunk neighbour = WorldGenHandler.INSTANCE.GetChunk(chunkX + 1, chunkZ);
-                                if (neighbour.GetBlock(0, y, z).Empty || (!block.Transparent && neighbour.GetBlock(0, y, z).Transparent))
-                                {
-                                    MeshUtils.AddBlockFaceVertices(block, vertices, uvs, triangles, blockPos, MeshUtils.FaceDirection.East);
-                                }
-                            }
-                        }
-                        else if (blocks[x + 1, y, z].Empty || (!block.Transparent && blocks[x + 1, y, z].Transparent))
-                        {
-                            MeshUtils.AddBlockFaceVertices(block, vertices, uvs, triangles, blockPos, MeshUtils.FaceDirection.East);
-                        }
-                        // West
-                        if (x == 0)
-                        {
-                            if (WorldGenHandler.INSTANCE.ChunkLoaded(chunkX - 1, chunkZ))
-                            {
-                                Chunk neighbour = WorldGenHandler.INSTANCE.GetChunk(chunkX - 1, chunkZ);
-                                if (neighbour.GetBlock(CHUNK_WIDTH-1, y, z).Empty || (!block.Transparent && neighbour.GetBlock(CHUNK_WIDTH - 1, y, z).Transparent))
-                                {
-                                    MeshUtils.AddBlockFaceVertices(block, vertices, uvs, triangles, blockPos, MeshUtils.FaceDirection.West);
-                                }
-                            }
-                        }
-                        else if (blocks[x - 1, y, z].Empty || (!block.Transparent && blocks[x - 1, y, z].Transparent))
-                        {
-                            MeshUtils.AddBlockFaceVertices(block, vertices, uvs, triangles, blockPos, MeshUtils.FaceDirection.West);
-                        }
-                    }
-                }
-            }
-        }
-
-        mesh.SetVertices(vertices);
-        mesh.SetUVs(0, uvs);
-        mesh.SetTriangles(triangles, 0);
-        mesh.RecalculateNormals();
-        mesh.RecalculateBounds();
-        meshCollider.sharedMesh = mesh;
-
         shouldUpdate = false;
     }
 }

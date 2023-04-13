@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
+using static ChunkRenderer;
 
 public class TextureAtlas
 {
@@ -12,7 +13,19 @@ public class TextureAtlas
     private Material _transparentMaterial;
     private Dictionary<string, Rect> uvDict = new();
 
-    public Material AtlasMaterial { get => _opaqueMaterial; }
+    public Material GetAtlasMaterial(RenderLayer layer)
+    { 
+        if (layer == RenderLayer.Opaque) 
+        {
+            return _opaqueMaterial;
+        }
+        if(layer == RenderLayer.Transparent || layer == RenderLayer.Water)
+        {
+            return _transparentMaterial;
+        }
+        return _opaqueMaterial;
+    }
+
     public TextureAtlas()
     {
         Texture2D[] textures = Resources.LoadAll<Texture2D>(BLOCK_TEXTURES);
@@ -43,6 +56,7 @@ public class TextureAtlas
 
         // generate transparent material
         _transparentMaterial = new Material(Shader.Find(AtlasShaderName));
+        _transparentMaterial.EnableKeyword(new LocalKeyword(_transparentMaterial.shader, "_SURFACE_TYPE_TRANSPARENT"));
         _transparentMaterial.mainTexture = atlasTex;
         _transparentMaterial.name = "TransparentAtlasMat";
 
