@@ -7,10 +7,13 @@ using static ChunkRenderer;
 public class TextureAtlas
 {
     private static readonly string BLOCK_TEXTURES = "Textures/Block";
-    private const string AtlasShaderName = "HDRP/Lit";
+    public static readonly TextureAtlas Instance = new TextureAtlas();
+    private const string OpaqueShaderName = "HDRP/Lit";
+    private const string WaterShaderName = "Shader Graphs/WaterShader";
     private const int TEXTURE_SIZE = 16;
     private Material _opaqueMaterial;
     private Material _transparentMaterial;
+    private Material _waterMaterial;
     private Dictionary<string, Rect> uvDict = new();
 
     public Material GetAtlasMaterial(RenderLayer layer)
@@ -19,9 +22,13 @@ public class TextureAtlas
         {
             return _opaqueMaterial;
         }
-        if(layer == RenderLayer.Transparent || layer == RenderLayer.Water)
+        if(layer == RenderLayer.Transparent)
         {
             return _transparentMaterial;
+        }
+        if(layer == RenderLayer.Water)
+        {
+            return _waterMaterial;
         }
         return _opaqueMaterial;
     }
@@ -50,15 +57,21 @@ public class TextureAtlas
         }
 
         // generate materials
-        _opaqueMaterial = new Material(Shader.Find(AtlasShaderName));
+        _opaqueMaterial = new Material(Shader.Find(OpaqueShaderName));
         _opaqueMaterial.mainTexture = atlasTex;
         _opaqueMaterial.name = "OpaqueAtlasMat";
 
         // generate transparent material
-        _transparentMaterial = new Material(Shader.Find(AtlasShaderName));
-        _transparentMaterial.EnableKeyword(new LocalKeyword(_transparentMaterial.shader, "_SURFACE_TYPE_TRANSPARENT"));
+        _transparentMaterial = new Material(Shader.Find(OpaqueShaderName));
         _transparentMaterial.mainTexture = atlasTex;
         _transparentMaterial.name = "TransparentAtlasMat";
+        _transparentMaterial.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+
+        // generate water material
+        _waterMaterial = new Material(Shader.Find(WaterShaderName));
+        _waterMaterial.SetTexture("_MainTexture", atlasTex);
+        _waterMaterial.name = "WaterAtlasMat";
+        _waterMaterial.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
 
         Debug.Log("Loaded texture atlas!");
     }

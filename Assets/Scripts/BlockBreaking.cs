@@ -26,7 +26,7 @@ public class BlockBreaking : MonoBehaviour
                 Vector3 forwardHit = hit.point + transform.TransformDirection(Vector3.forward) * 0.001f;
                 Debug.Log($"Did Hit at {forwardHit.x},{forwardHit.y},{forwardHit.z}");
                 (Chunk, Vector3Int) chunkPos = WorldGenHandler.INSTANCE.WorldPosToChunkPos(forwardHit);
-                chunkPos.Item1.SetBlock(chunkPos.Item2.x, chunkPos.Item2.y, chunkPos.Item2.z, Registries.AIR);
+                chunkPos.Item1.SetBlock(chunkPos.Item2.x, chunkPos.Item2.y, chunkPos.Item2.z, BlockRegistry.AIR);
             }
         }
         if (Input.GetKeyDown(KeyCode.Mouse1))
@@ -39,7 +39,7 @@ public class BlockBreaking : MonoBehaviour
                 Vector3 backwardHit = hit.point - transform.TransformDirection(Vector3.forward) * 0.001f;
                 Debug.Log($"Did Hit at {backwardHit.x},{backwardHit.y},{backwardHit.z}");
                 (Chunk, Vector3Int) chunkPos = WorldGenHandler.INSTANCE.WorldPosToChunkPos(backwardHit);
-                chunkPos.Item1.SetBlock(chunkPos.Item2.x, chunkPos.Item2.y, chunkPos.Item2.z, blockId % 2 == 0 ? Registries.PLANKS : Registries.GLASS);
+                chunkPos.Item1.SetBlock(chunkPos.Item2.x, chunkPos.Item2.y, chunkPos.Item2.z, blockId % 2 == 0 ? BlockRegistry.PLANKS : BlockRegistry.GLASS);
             }
         }
     }

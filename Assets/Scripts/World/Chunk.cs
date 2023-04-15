@@ -53,7 +53,7 @@ public class Chunk : MonoBehaviour
             {
                 for (int localY = 0; localY < CHUNK_HEIGHT; localY++)
                 {
-                    blocks[localX, localY, localZ] = Registries.AIR;
+                    blocks[localX, localY, localZ] = BlockRegistry.AIR;
                 }
             }
         }
@@ -67,7 +67,7 @@ public class Chunk : MonoBehaviour
                 {
                     if(localY < FLOOR_LEVEL + (CHUNK_HEIGHT-FLOOR_LEVEL) * Mathf.PerlinNoise((rootX + localX) * PERLIN_SCALE, (rootZ + localZ) * PERLIN_SCALE) * 0.6f)
                     {
-                        blocks[localX, localY, localZ] = isDirt ? Registries.DIRT : Registries.STONE;
+                        blocks[localX, localY, localZ] = isDirt ? BlockRegistry.DIRT : BlockRegistry.STONE;
                     }
                 }
             }
@@ -79,7 +79,7 @@ public class Chunk : MonoBehaviour
             {
                 for (int localY = 0; localY < SEA_LEVEL; localY++)
                 {
-                    if (blocks[localX, localY, localZ].Empty) { blocks[localX, localY, localZ] = Registries.WATER; }
+                    if (blocks[localX, localY, localZ].Empty) { blocks[localX, localY, localZ] = BlockRegistry.WATER; }
                 }
             }
         }

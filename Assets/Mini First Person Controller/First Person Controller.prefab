@@ -397,7 +397,7 @@ Camera:
     height: 1
   near clip plane: 0.01
   far clip plane: 1000
-  field of view: 60
+  field of view: 80
   orthographic: 0
   orthographic size: 5
   m_Depth: 0
@@ -458,10 +458,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 780f90e951d635f439326ea715cd97e9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  defaultFOV: 60
+  defaultFOV: 80
   maxZoomFOV: 15
   currentZoom: 0
-  sensitivity: 1
+  sensitivity: 0
 --- !u!114 &2566825322271051373
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -1,25 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static ChunkRenderer;
 
-public class Registry<T> where T : IHasId
+public static class BlockRegistry
 {
-    private Dictionary<string, T> _registry = new Dictionary<string, T>();
-    public T Register(T item)
-    {
-        if(_registry.ContainsKey(item.Id))
-        {
-            throw new System.Exception($"Tried to register already existing {typeof(T).Name} " + item.Id);
-        }
-        _registry[item.Id] = item;
-        return item;
-    }
-    public T Get(string id)
-    {
-        if (!_registry.ContainsKey(id))
-        {
-            throw new System.Exception($"Tried to get non-existing {typeof(T).Name} " + id);
-        }
-        return _registry[id];
-    }
+    public static Registry<Block> Blocks = new Registry<Block>();
+
+    public static readonly Block AIR = Blocks.Register(new Block("game:air", "Air", RenderLayer.Transparent));
+    public static readonly Block STONE = Blocks.Register(new Block("game:stone", "Stone", RenderLayer.Opaque));
+    public static readonly Block DIRT = Blocks.Register(new Block("game:dirt", "Dirt", RenderLayer.Opaque));
+    public static readonly Block PLANKS = Blocks.Register(new Block("game:planks", "Planks", RenderLayer.Opaque));
+    public static readonly Block GLASS = Blocks.Register(new Block("game:glass", "Glass", RenderLayer.Transparent));
+    public static readonly Block WATER = Blocks.Register(new Block("game:water", "Water", RenderLayer.Water));
 }

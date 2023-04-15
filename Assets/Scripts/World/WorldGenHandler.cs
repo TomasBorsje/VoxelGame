@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class WorldGenHandler : MonoBehaviour
 {
-    public static int RENDER_DISTANCE = 8;
+    public static int RENDER_DISTANCE = 11;
     public static WorldGenHandler INSTANCE = null;
 
     Dictionary<(int, int), Chunk> ChunkDictionary = new Dictionary<(int, int), Chunk>();
@@ -75,8 +75,8 @@ public class WorldGenHandler : MonoBehaviour
             chunkUpdateTimer = 0;
 
             // Get player chunk coordinates
-            int playerChunkX = 0;//Mathf.FloorToInt(player.transform.position.x / (Chunk.CHUNK_WIDTH * Chunk.BLOCK_SIZE));
-            int playerChunkZ = 0;// Mathf.FloorToInt(player.transform.position.z / (Chunk.CHUNK_WIDTH * Chunk.BLOCK_SIZE));
+            int playerChunkX = Mathf.FloorToInt(player.transform.position.x / (Chunk.CHUNK_WIDTH * Chunk.BLOCK_SIZE));
+            int playerChunkZ = Mathf.FloorToInt(player.transform.position.z / (Chunk.CHUNK_WIDTH * Chunk.BLOCK_SIZE));
             Debug.Log($"Player is in {playerChunkX},{playerChunkZ}");
 
             for (int renderX = playerChunkX - RENDER_DISTANCE; renderX < playerChunkX + RENDER_DISTANCE; renderX++)

@@ -8,7 +8,7 @@ public static class MeshUtils
     public static void AddBlockFaceVertices(Block block, IList<Vector3> vertices, IList<Vector2> uvs, IList<int> triangles, Vector3 pos, FaceDirection face)
     {
         int vStart = vertices.Count;
-        Rect uvArea = Registries.TextureAtlas.GetUVs(block.Id);
+        Rect uvArea = TextureAtlas.Instance.GetUVs(block.Id);
 
         Vector2 bottomLeft = uvArea.position;
         Vector2 top = bottomLeft + new Vector2(0, uvArea.height);
