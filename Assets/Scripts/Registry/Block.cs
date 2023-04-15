@@ -22,6 +22,6 @@ public class Block : IHasId
         _layer = layer;
     }
 
-    public bool Transparent => _layer == RenderLayer.Transparent || _layer == RenderLayer.Water;
+    public bool Transparent => _layer == RenderLayer.Transparent || _layer == RenderLayer.Water || _layer == RenderLayer.Leaves;
     public bool Empty => _id == "game:air";
 }

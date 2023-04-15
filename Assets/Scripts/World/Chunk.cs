@@ -83,8 +83,57 @@ public class Chunk : MonoBehaviour
                 }
             }
         }
+
+        // Tree gens
+        for (int localX = 0; localX < CHUNK_WIDTH; localX++)
+        {
+            for (int localZ = 0; localZ < CHUNK_WIDTH; localZ++)
+            {
+                if (UnityEngine.Random.Range(0f, 1f) < 0.001)
+                {
+                    Vector3Int topmost = GetTopmostBlock(localX, localZ);
+                    GenerateTree(topmost.x, topmost.y, topmost.z);
+                }
+            }
+        }
+
+
         initialized = true;
         RenderMesh();
+    }
+
+    void GenerateTree(int x, int y, int z)
+    {
+        for (int leavesX = x - 2; leavesX < x + 3; leavesX++)
+        {
+            for (int leavesZ = z - 2; leavesZ < z + 3; leavesZ++)
+            {
+                for (int leavesY = y+3; leavesY < y + 7; leavesY++)
+                {
+                    if(leavesY == y+6 && (leavesX == x-2 || leavesX == x+2) && (leavesZ == z - 2 || leavesZ == z + 2))
+                    {
+                        continue;
+                    }
+                    SetBlock(leavesX, leavesY, leavesZ, BlockRegistry.LEAVES);
+                }
+            }
+        }
+        for(int trunkY = y; trunkY < y + 5; trunkY++)
+        {
+            SetBlock(x, trunkY, z, BlockRegistry.LOG);
+        }
+    }
+
+    Vector3Int GetTopmostBlock(int x, int z)
+    {
+        for(int y = CHUNK_HEIGHT-1; y > 0; y--)
+        {
+            if(!blocks[x,y,z].Empty)
+            {
+                return new Vector3Int(x, y, z);
+            }
+        }
+        return new Vector3Int(x, CHUNK_HEIGHT, z);
     }
     
     public Vector3Int GetChunkCoords()
@@ -103,6 +152,12 @@ public class Chunk : MonoBehaviour
 
     public void SetBlock(int x, int y, int z, Block block)
     {
+        if(x < 0 || x > CHUNK_WIDTH-1 || y < 0 || y > CHUNK_HEIGHT-1 || z < 0 || z > CHUNK_WIDTH-1)
+        {
+            // Not in our chunk, delegate to worldhandler
+            return;
+            //WorldGenHandler.INSTANCE.TryGenerateBlock(block, new Vector3Int(chunkX * CHUNK_WIDTH + x, y, chunkZ * CHUNK_WIDTH + z));
+        }
         blocks[x, y, z] = block;
         MarkUpdate();
         WorldGenHandler.INSTANCE.ReRenderNeighbours(chunkX, chunkZ);

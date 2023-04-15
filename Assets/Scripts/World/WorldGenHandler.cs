@@ -8,6 +8,7 @@ public class WorldGenHandler : MonoBehaviour
     public static WorldGenHandler INSTANCE = null;
 
     Dictionary<(int, int), Chunk> ChunkDictionary = new Dictionary<(int, int), Chunk>();
+    Dictionary<(int, int), List<(Block, Vector3Int)>> WorldgenWaitlist = new Dictionary<(int, int), List<(Block, Vector3Int)>>();
 
     private float chunkUpdateTimer = 0;
     GameObject player;
@@ -29,6 +30,26 @@ public class WorldGenHandler : MonoBehaviour
             return (ChunkDictionary[(chunkX, chunkZ)], new Vector3Int(localX, localY, localZ));
         }
         return (null, Vector3Int.zero);
+    }
+    public void TryGenerateBlock(Block block, Vector3Int worldPos)
+    {
+        int chunkX = Mathf.FloorToInt(worldPos.x / (Chunk.CHUNK_WIDTH * Chunk.BLOCK_SIZE));
+        int chunkZ = Mathf.FloorToInt(worldPos.z / (Chunk.CHUNK_WIDTH * Chunk.BLOCK_SIZE));
+        if (ChunkDictionary.ContainsKey((chunkX, chunkZ)))
+        {
+            int localX = worldPos.x % Chunk.CHUNK_WIDTH < 0 ? (int)(worldPos.x % Chunk.CHUNK_WIDTH + Chunk.CHUNK_WIDTH) : (int)(worldPos.x % Chunk.CHUNK_WIDTH);
+            int localZ = worldPos.z % Chunk.CHUNK_WIDTH < 0 ? (int)(worldPos.z % Chunk.CHUNK_WIDTH + Chunk.CHUNK_WIDTH) : (int)(worldPos.z % Chunk.CHUNK_WIDTH);
+            ChunkDictionary[(chunkX, chunkZ)].SetBlock(localX, worldPos.y, localZ, block);
+        }
+        else
+        {
+            // Add to waitlist
+            if(!WorldgenWaitlist.ContainsKey((chunkX, chunkZ)))
+            {
+                WorldgenWaitlist[(chunkX, chunkZ)] = new List<(Block, Vector3Int)>();
+            }
+            WorldgenWaitlist[(chunkX, chunkZ)].Add((block, worldPos));
+        }
     }
 
     private void Awake()
@@ -118,12 +139,13 @@ public class WorldGenHandler : MonoBehaviour
             Debug.LogError($"Tried to generate new chunk for existing coordinate {chunkX},{chunkZ}");
             return;
         }
-        //Debug.Log($"Creating Chunk {chunkX},{chunkZ}");
         GameObject newChunk = new GameObject("Chunk " + chunkX + "," + chunkZ);
-        Chunk comp = newChunk.AddComponent<Chunk>();
         newChunk.transform.position = new Vector3(chunkX * Chunk.CHUNK_WIDTH * Chunk.BLOCK_SIZE, 0, chunkZ * Chunk.CHUNK_WIDTH * Chunk.BLOCK_SIZE);
+
+        // Create, store, init chunk
+        Chunk comp = newChunk.AddComponent<Chunk>();
+        ChunkDictionary[(chunkX, chunkZ)] = comp; // Store first so chunk can detect itself as existing
         comp.Init();
-        ChunkDictionary[(chunkX, chunkZ)] = comp;
 
         ReRenderNeighbours(chunkX, chunkZ);
     }

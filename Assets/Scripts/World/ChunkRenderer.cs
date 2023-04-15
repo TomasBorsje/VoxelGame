@@ -4,7 +4,7 @@ using UnityEngine;
 using static Chunk;
 public class ChunkRenderer : MonoBehaviour
 {
-    public enum RenderLayer { Opaque, Transparent, Water, Model }
+    public enum RenderLayer { Opaque, Transparent, Water, Leaves, Model }
 
     Chunk chunk;
     RenderLayer layer;

@@ -13,4 +13,6 @@ public static class BlockRegistry
     public static readonly Block PLANKS = Blocks.Register(new Block("game:planks", "Planks", RenderLayer.Opaque));
     public static readonly Block GLASS = Blocks.Register(new Block("game:glass", "Glass", RenderLayer.Transparent));
     public static readonly Block WATER = Blocks.Register(new Block("game:water", "Water", RenderLayer.Water));
+    public static readonly Block LOG = Blocks.Register(new Block("game:log", "Log", RenderLayer.Opaque));
+    public static readonly Block LEAVES = Blocks.Register(new Block("game:leaves", "Leaves", RenderLayer.Leaves));
 }

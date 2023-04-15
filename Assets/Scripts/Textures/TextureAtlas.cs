@@ -10,10 +10,12 @@ public class TextureAtlas
     public static readonly TextureAtlas Instance = new TextureAtlas();
     private const string OpaqueShaderName = "HDRP/Lit";
     private const string WaterShaderName = "Shader Graphs/WaterShader";
+    private const string LeavesShaderName = "Shader Graphs/LeavesShader";
     private const int TEXTURE_SIZE = 16;
     private Material _opaqueMaterial;
     private Material _transparentMaterial;
     private Material _waterMaterial;
+    private Material _leavesMaterial;
     private Dictionary<string, Rect> uvDict = new();
 
     public Material GetAtlasMaterial(RenderLayer layer)
@@ -29,6 +31,10 @@ public class TextureAtlas
         if(layer == RenderLayer.Water)
         {
             return _waterMaterial;
+        }
+        if (layer == RenderLayer.Leaves)
+        {
+            return _leavesMaterial;
         }
         return _opaqueMaterial;
     }
@@ -72,6 +78,12 @@ public class TextureAtlas
         _waterMaterial.SetTexture("_MainTexture", atlasTex);
         _waterMaterial.name = "WaterAtlasMat";
         _waterMaterial.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+
+        // generate leaves material
+        _leavesMaterial = new Material(Shader.Find(LeavesShaderName));
+        _leavesMaterial.SetTexture("_MainTexture", atlasTex);
+        _leavesMaterial.name = "LeafAtlasMat";
+        _leavesMaterial.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
 
         Debug.Log("Loaded texture atlas!");
     }
