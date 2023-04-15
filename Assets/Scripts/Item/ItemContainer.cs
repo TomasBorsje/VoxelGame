@@ -22,10 +22,26 @@ public class ItemContainer
     {
         return _itemStacks[slot];
     }
-    public ItemStack AddStack()
+    // Adds an itemstack to an inventory, merging stacks along the way. Returns the remainder.
+    public ItemStack AddStack(ItemStack stack)
     {
-        // Todo: merging and returning leftover itemstack etc.
-        throw new NotImplementedException();
+        ItemStack remainder = stack;
+        for(int i = 0; i < _size; i++)
+        {
+            // If empty slot, move to there.
+            if(_itemStacks[i] == ItemStack.EMPTY)
+            {
+                _itemStacks[i] = remainder;
+                return ItemStack.EMPTY;
+            }
+            // Try to merge and continue with any remainder
+            remainder = _itemStacks[i].Merge(remainder);
+            if (remainder == ItemStack.EMPTY)
+            {
+                return ItemStack.EMPTY;
+            }
+        }
+        return remainder;
     }
     public override string ToString()
     {

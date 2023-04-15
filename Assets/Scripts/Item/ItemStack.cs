@@ -44,4 +44,27 @@ public class ItemStack
     {
         return this == EMPTY ? "Empty" : $"{_count}x {_item}";
     }
+    // Merges another stack into this one, returning the remainder (or the stack unchanged if not possible).
+    public ItemStack Merge(ItemStack stackToMerge)
+    {
+        // If these are not the same items, or this stack is full, don't merge.
+        if (stackToMerge == ItemStack.EMPTY || stackToMerge._item.Id != _item.Id || _count >= _item.MaxStackSize)
+        {
+            return stackToMerge;
+        }
+        // Otherwise, increase our stack count and decrease the remainder stack count
+        int moveAmount = Mathf.Min(stackToMerge._count, _item.MaxStackSize - _count);
+        _count += moveAmount;
+        return stackToMerge.ChangeCount(-moveAmount);
+    }
+
+    public ItemStack ChangeCount(int change)
+    {
+        _count += change;
+        if(_count <= 0)
+        {
+            return ItemStack.EMPTY;
+        }
+        return this;
+    }
 }

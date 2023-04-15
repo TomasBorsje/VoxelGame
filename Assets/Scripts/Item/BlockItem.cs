@@ -8,6 +8,7 @@ public class BlockItem : Item
     public BlockItem(Block block)
     {
         _block = block;
+        _id = _block.Id;
     }
     public override UseResult Use(Entity entity)
     {

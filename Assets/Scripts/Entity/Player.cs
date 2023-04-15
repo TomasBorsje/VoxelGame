@@ -53,11 +53,12 @@ public class Player : LivingEntity
         // Scroll down = slot increase
         if(scrollDir < 0)
         {
-            selectedSlot = (selectedSlot + 1) % 9;
+            selectedSlot = (selectedSlot + 1) % HOTBAR_SIZE;
         }
         else
         {
-            selectedSlot = (selectedSlot - 1) % 9;
+            selectedSlot = (selectedSlot - 1) % HOTBAR_SIZE;
+            if(selectedSlot < 0) { selectedSlot += HOTBAR_SIZE; }
         }
     }
     void TryBreakBlock()
@@ -71,6 +72,11 @@ public class Player : LivingEntity
             Vector3 forwardHit = hit.point + headTransform.TransformDirection(Vector3.forward) * 0.001f;
             Debug.Log($"Did Hit at {forwardHit.x},{forwardHit.y},{forwardHit.z}");
             (Chunk, Vector3Int) chunkPos = WorldGenHandler.INSTANCE.WorldPosToChunkPos(forwardHit);
+            // Get hit block
+            Block hitBlock = chunkPos.Item1.GetBlock(chunkPos.Item2.x, chunkPos.Item2.y, chunkPos.Item2.z);
+            // Add to inventory
+            inventory.AddStack(new ItemStack(BlockItemRegistry.ITEMS.Get(hitBlock.Id)()));
+            // Delete block
             chunkPos.Item1.SetBlock(chunkPos.Item2.x, chunkPos.Item2.y, chunkPos.Item2.z, BlockRegistry.AIR);
         }
     }
