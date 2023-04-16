@@ -8,7 +8,8 @@ public class ItemStack
     public static readonly ItemStack EMPTY = new ItemStack(null);
     Item _item;
     public Item Item { get => _item; }
-    int _count { get; set; }
+    int _count;
+    public int Count { get => _count; }
     public ItemStack(Item item)
     {
         _item = item;

@@ -16,6 +16,7 @@ public class TextureAtlas
     private Material _transparentMaterial;
     private Material _waterMaterial;
     private Material _leavesMaterial;
+    public Texture2D atlasTex;
     private Dictionary<string, Rect> uvDict = new();
 
     public Material GetAtlasMaterial(RenderLayer layer)
@@ -49,7 +50,7 @@ public class TextureAtlas
 
         int atlasSize = Mathf.CeilToInt(Mathf.Sqrt(textures.Length));
 
-        Texture2D atlasTex = new Texture2D(atlasSize*TEXTURE_SIZE, atlasSize*TEXTURE_SIZE);
+        atlasTex = new Texture2D(atlasSize*TEXTURE_SIZE, atlasSize*TEXTURE_SIZE);
         atlasTex.filterMode = FilterMode.Point;
         atlasTex.mipMapBias = -16f;
         atlasTex.name = "TextureAtlas";
@@ -80,6 +81,7 @@ public class TextureAtlas
         _waterMaterial.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
 
         // generate leaves material
+        // Transparent depth prepass
         _leavesMaterial = new Material(Shader.Find(LeavesShaderName));
         _leavesMaterial.SetTexture("_MainTexture", atlasTex);
         _leavesMaterial.name = "LeafAtlasMat";
@@ -90,5 +92,10 @@ public class TextureAtlas
     public Rect GetUVs(string id)
     {
         return uvDict[id];
+    }
+    public Rect GetRect(string id)
+    {
+        Rect uv = uvDict[id];
+        return new Rect(uv.x * atlasTex.width, uv.y * atlasTex.height, TEXTURE_SIZE, TEXTURE_SIZE);
     }
 }

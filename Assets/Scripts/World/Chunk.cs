@@ -40,7 +40,16 @@ public class Chunk : MonoBehaviour
             GameObject renderer = new GameObject(layer.ToString() + " Renderer");
             renderer.transform.SetParent(gameObject.transform);
             renderer.transform.localPosition = Vector3.zero;
-            ChunkRenderer comp = renderer.AddComponent<ChunkRenderer>();
+            ChunkRenderer comp = null;
+            // todo: rename leaves renderer to wavy
+            switch (layer) {
+                case RenderLayer.Opaque: { comp = renderer.AddComponent<OpaqueChunkRenderer>(); break; }
+                case RenderLayer.Water: { comp = renderer.AddComponent<WaterChunkRenderer>(); break; }
+                case RenderLayer.Leaves: { comp = renderer.AddComponent<LeavesChunkRenderer>(); break; }
+                case RenderLayer.Transparent: { comp = renderer.AddComponent<TransparentChunkRenderer>(); break; }
+                default: { comp = renderer.AddComponent<OpaqueChunkRenderer>(); break; }
+            }
+            // todo: remove layer arg
             comp.Init(this, layer);
             renderers[i++] = comp;
         }

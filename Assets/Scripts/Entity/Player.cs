@@ -9,16 +9,33 @@ public class Player : LivingEntity
     public int reachDistance = 5;
     public static int INVENTORY_SIZE = 30;
     public static int HOTBAR_SIZE = 9;
-    Camera cam;
+    float UI_SCALE = 2;
 
+    Camera cam;
+    InventorySlotDisplay[] uiSlots = new InventorySlotDisplay[HOTBAR_SIZE];
     int selectedSlot = 0; // Wraps around 0-8
     ItemContainer inventory;
+
+    public ItemContainer Inventory { get => inventory; }
+    public int SelectedSlot { get => selectedSlot; }
     private void Awake()
     {
         cam = transform.GetComponentInChildren<Camera>();
         inventory = new ItemContainer(INVENTORY_SIZE);
         inventory.SetStackInSlot(0, new ItemStack(new BlockItem(BlockRegistry.PLANKS), 8));
         inventory.SetStackInSlot(1, new ItemStack(new BlockItem(BlockRegistry.GLASS), 8));
+
+        // Setup ui
+        GameObject canvas = GameObject.FindGameObjectWithTag("Canvas");
+        for (int hotbarSlot = 0; hotbarSlot < HOTBAR_SIZE; hotbarSlot++) 
+        {
+            GameObject slotHandler = Instantiate(Resources.Load<GameObject>("Prefabs/UI/InventorySlotDisplay"));
+            uiSlots[hotbarSlot] = slotHandler.GetComponent<InventorySlotDisplay>();
+            uiSlots[hotbarSlot].Init(this, hotbarSlot);
+            slotHandler.transform.SetParent(canvas.transform);
+            ((RectTransform)slotHandler.transform).localPosition = new Vector2(40*hotbarSlot*UI_SCALE-40*4.5f*UI_SCALE, -350);
+            slotHandler.transform.localScale = Vector3.one * UI_SCALE;
+        }
     }
     void Update()
     {
