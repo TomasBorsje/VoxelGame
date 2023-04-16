@@ -9,8 +9,19 @@ public class Player : LivingEntity
     public int reachDistance = 5;
     public static int INVENTORY_SIZE = 30;
     public static int HOTBAR_SIZE = 9;
-    float UI_SCALE = 2;
+    public static float UI_SCALE = 2;
 
+    private static readonly KeyCode[] HOTBAR_KEYCODES = {
+         KeyCode.Alpha1,
+         KeyCode.Alpha2,
+         KeyCode.Alpha3,
+         KeyCode.Alpha4,
+         KeyCode.Alpha5,
+         KeyCode.Alpha6,
+         KeyCode.Alpha7,
+         KeyCode.Alpha8,
+         KeyCode.Alpha9,
+     };
     Camera cam;
     InventorySlotDisplay[] uiSlots = new InventorySlotDisplay[HOTBAR_SIZE];
     int selectedSlot = 0; // Wraps around 0-8
@@ -59,7 +70,19 @@ public class Player : LivingEntity
         {
             HotbarScroll();
         }
+        TrySwitchSelectedSlot();
     }
+    private void TrySwitchSelectedSlot()
+    {
+        for (int i = 0; i < HOTBAR_KEYCODES.Length; i++)
+        {
+            if (Input.GetKeyDown(HOTBAR_KEYCODES[i]))
+            {
+                selectedSlot = i;
+            }
+        }
+    }
+
     ItemStack GetSelectedItem()
     {
         return inventory.GetStackInSlot(selectedSlot);

@@ -98,9 +98,9 @@ public class Chunk : MonoBehaviour
         {
             for (int localZ = 0; localZ < CHUNK_WIDTH; localZ++)
             {
-                if (UnityEngine.Random.Range(0f, 1f) < 0.001)
+                if (UnityEngine.Random.Range(0f, 1f) < 0.007)
                 {
-                    Vector3Int topmost = GetTopmostBlock(localX, localZ);
+                    Vector3Int topmost = GetTopmostBlock(localX, localZ, new Block[] { BlockRegistry.AIR, BlockRegistry.LEAVES });
                     GenerateTree(topmost.x, topmost.y, topmost.z);
                 }
             }
@@ -119,7 +119,7 @@ public class Chunk : MonoBehaviour
             {
                 for (int leavesY = y+3; leavesY < y + 7; leavesY++)
                 {
-                    if(leavesY == y+6 && (leavesX == x-2 || leavesX == x+2) && (leavesZ == z - 2 || leavesZ == z + 2))
+                    if((leavesY == y+6 || leavesY == y+3) && (leavesX == x-2 || leavesX == x+2) && (leavesZ == z - 2 || leavesZ == z + 2))
                     {
                         continue;
                     }
@@ -133,16 +133,21 @@ public class Chunk : MonoBehaviour
         }
     }
 
-    Vector3Int GetTopmostBlock(int x, int z)
+    Vector3Int GetTopmostBlock(int x, int z, Block[] ignore)
     {
-        for(int y = CHUNK_HEIGHT-1; y > 0; y--)
+        for (int y = CHUNK_HEIGHT - 1; y > 0; y--)
         {
-            if(!blocks[x,y,z].Empty)
+            if (!Array.Exists(ignore, element => element.Id == blocks[x, y, z].Id))
             {
                 return new Vector3Int(x, y, z);
             }
         }
         return new Vector3Int(x, CHUNK_HEIGHT, z);
+    }
+
+    Vector3Int GetTopmostBlock(int x, int z)
+    {
+        return GetTopmostBlock(x, z, new Block[] {BlockRegistry.AIR});
     }
     
     public Vector3Int GetChunkCoords()
