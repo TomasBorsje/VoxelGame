@@ -5,12 +5,13 @@ using UnityEngine;
 public class BlockItem : Item
 {
     Block _block;
+    public Block Block { get => _block; }
     public BlockItem(Block block)
     {
         _block = block;
         _id = _block.Id;
     }
-    public override UseResult Use(Entity entity)
+    public override UseResult Use(LivingEntity entity)
     {
         RaycastHit hit;
         Transform head = entity.GetHeadTransform();

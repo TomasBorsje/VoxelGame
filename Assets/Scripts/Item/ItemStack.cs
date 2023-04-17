@@ -21,7 +21,7 @@ public class ItemStack
         _count = count;
     }
 
-    public UseResult Use(Entity entity, out ItemStack stack)
+    public UseResult Use(LivingEntity entity, out ItemStack stack)
     {
         UseResult result = _item.Use(entity);
         // Consume item if we used successfully

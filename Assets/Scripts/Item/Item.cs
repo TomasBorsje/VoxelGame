@@ -13,7 +13,7 @@ public abstract class Item : IHasId
     public string Id { get => _id; }
     public int MaxStackSize { get => _maxStackSize; }
 
-    public virtual UseResult Use(Entity entity)
+    public virtual UseResult Use(LivingEntity entity)
     {
         return UseResult.Used;
     }

@@ -6,43 +6,24 @@ using static ChunkRenderer;
 
 public class TextureAtlas
 {
-    private static readonly string BLOCK_TEXTURES = "Textures/Block";
     public static readonly TextureAtlas Instance = new TextureAtlas();
     private const string OpaqueShaderName = "HDRP/Lit";
     private const string WaterShaderName = "Shader Graphs/WaterShader";
     private const string LeavesShaderName = "Shader Graphs/LeavesShader";
     private const int TEXTURE_SIZE = 16;
-    private Material _opaqueMaterial;
-    private Material _transparentMaterial;
-    private Material _waterMaterial;
-    private Material _leavesMaterial;
+
+    Dictionary<RenderLayer, Material> renderMatDict = new Dictionary<RenderLayer, Material>();
     public Texture2D atlasTex;
     private Dictionary<string, Rect> uvDict = new();
 
     public Material GetAtlasMaterial(RenderLayer layer)
-    { 
-        if (layer == RenderLayer.Opaque) 
-        {
-            return _opaqueMaterial;
-        }
-        if(layer == RenderLayer.Transparent)
-        {
-            return _transparentMaterial;
-        }
-        if(layer == RenderLayer.Water)
-        {
-            return _waterMaterial;
-        }
-        if (layer == RenderLayer.Leaves)
-        {
-            return _leavesMaterial;
-        }
-        return _opaqueMaterial;
+    {
+        return renderMatDict.GetValueOrDefault(layer, renderMatDict[RenderLayer.Opaque]);
     }
 
     public TextureAtlas()
     {
-        Texture2D[] textures = Resources.LoadAll<Texture2D>(BLOCK_TEXTURES);
+        Texture2D[] textures = ResourceCache.Instance.BlockTextures;
         if(textures == null)
         {
             throw new System.Exception("Failed to load textures!");
@@ -64,28 +45,32 @@ public class TextureAtlas
         }
 
         // generate materials
-        _opaqueMaterial = new Material(Shader.Find(OpaqueShaderName));
+        Material _opaqueMaterial = new Material(Shader.Find(OpaqueShaderName));
         _opaqueMaterial.mainTexture = atlasTex;
         _opaqueMaterial.name = "OpaqueAtlasMat";
+        renderMatDict[RenderLayer.Opaque] = _opaqueMaterial;
 
         // generate transparent material
-        _transparentMaterial = new Material(Shader.Find(OpaqueShaderName));
+        Material _transparentMaterial = new Material(Shader.Find(OpaqueShaderName));
         _transparentMaterial.mainTexture = atlasTex;
         _transparentMaterial.name = "TransparentAtlasMat";
         _transparentMaterial.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+        renderMatDict[RenderLayer.Transparent] = _transparentMaterial;
 
         // generate water material
-        _waterMaterial = new Material(Shader.Find(WaterShaderName));
+        Material _waterMaterial = new Material(Shader.Find(WaterShaderName));
         _waterMaterial.SetTexture("_MainTexture", atlasTex);
         _waterMaterial.name = "WaterAtlasMat";
         _waterMaterial.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+        renderMatDict[RenderLayer.Water] = _waterMaterial;
 
         // generate leaves material
         // Transparent depth prepass
-        _leavesMaterial = new Material(Shader.Find(LeavesShaderName));
+        Material _leavesMaterial = new Material(Shader.Find(LeavesShaderName));
         _leavesMaterial.SetTexture("_MainTexture", atlasTex);
         _leavesMaterial.name = "LeafAtlasMat";
         _leavesMaterial.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+        renderMatDict[RenderLayer.Leaves] = _leavesMaterial;
 
         Debug.Log("Loaded texture atlas!");
     }

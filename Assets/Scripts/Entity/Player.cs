@@ -114,10 +114,14 @@ public class Player : LivingEntity
             (Chunk, Vector3Int) chunkPos = WorldGenHandler.INSTANCE.WorldPosToChunkPos(forwardHit);
             // Get hit block
             Block hitBlock = chunkPos.Item1.GetBlock(chunkPos.Item2.x, chunkPos.Item2.y, chunkPos.Item2.z);
-            // Add to inventory
-            inventory.AddStack(new ItemStack(BlockItemRegistry.ITEMS.Get(hitBlock.Id)()));
-            // Delete block
-            chunkPos.Item1.SetBlock(chunkPos.Item2.x, chunkPos.Item2.y, chunkPos.Item2.z, BlockRegistry.AIR);
+            // Don't interact with air!
+            if (!hitBlock.Empty)
+            {
+                // Delete block
+                chunkPos.Item1.SetBlock(chunkPos.Item2.x, chunkPos.Item2.y, chunkPos.Item2.z, BlockRegistry.AIR);
+                // Spawn item entity!
+                ItemStackEntity.CreateItemStackEntity(Vector3Int.FloorToInt(forwardHit) + new Vector3(0.5f, 0.5f, 0.5f), new ItemStack(BlockItemRegistry.ITEMS.Get(hitBlock.Id)()));
+            }
         }
     }
     void TryUseSelectedItem()

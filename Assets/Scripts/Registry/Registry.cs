@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Registry<T> where T : IHasId
+public class Registry<T> : IEnumerable where T : IHasId
 {
     private Dictionary<string, T> _registry = new Dictionary<string, T>();
     public T Register(T item)
@@ -21,5 +21,10 @@ public class Registry<T> where T : IHasId
             throw new System.Exception($"Tried to get non-existing {typeof(T).Name} " + id);
         }
         return _registry[id];
+    }
+
+    public IEnumerator GetEnumerator()
+    {
+        return _registry.Values.GetEnumerator();
     }
 }

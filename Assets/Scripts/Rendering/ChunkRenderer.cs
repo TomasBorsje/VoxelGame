@@ -21,7 +21,7 @@ public abstract class ChunkRenderer : MonoBehaviour
         mesh = new Mesh();
         mesh.name = "ChunkMesh-" + type.ToString();
         meshRenderer = gameObject.AddComponent<MeshRenderer>();
-        meshRenderer.material = TextureAtlas.Instance.GetAtlasMaterial(type);
+        meshRenderer.material = TextureAtlas.Instance.GetAtlasMaterial(this.layer);
         meshCollider = gameObject.AddComponent<MeshCollider>();
         meshFilter = gameObject.AddComponent<MeshFilter>();
         meshFilter.mesh = mesh;

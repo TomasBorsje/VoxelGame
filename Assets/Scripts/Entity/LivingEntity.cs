@@ -20,4 +20,6 @@ public abstract class LivingEntity : Entity
     {
         Debug.Log(this.GetType().Name + " died!");
     }
+    // Need a way to get head location from entities for LOS raycasting, etc!
+    public abstract Transform GetHeadTransform();
 }
