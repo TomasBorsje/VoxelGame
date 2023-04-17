@@ -48,8 +48,9 @@ public class Player : LivingEntity
             slotHandler.transform.localScale = Vector3.one * UI_SCALE;
         }
     }
-    void Update()
+    protected override void Update()
     {
+        base.Update();
         HandleInputs();
         Debug.Log("Inventory: " + inventory);
     }

@@ -2,19 +2,19 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ItemStackEntity : MonoBehaviour
+public class ItemStackEntity : Entity
 {
     GameObject modelHolder;
     MeshFilter filter;
     MeshRenderer meshRenderer;
     ItemStack stack;
     Rigidbody rb;
-    BoxCollider collider;
+    BoxCollider boxCollider;
     public void Init(ItemStack item)
     {
         stack = item;
-        collider = gameObject.AddComponent<BoxCollider>();
-        collider.size = Vector3.one * 0.3f;
+        boxCollider = gameObject.AddComponent<BoxCollider>();
+        boxCollider.size = Vector3.one * 0.3f;
         rb = gameObject.AddComponent<Rigidbody>();
         rb.constraints = RigidbodyConstraints.FreezeRotation;
 
@@ -32,10 +32,11 @@ public class ItemStackEntity : MonoBehaviour
             filter, 
             meshRenderer);
     }
-    void Update()
+    protected override void Update()
     {
+        base.Update();
         // animate model holder!
-        modelHolder.transform.localPosition = new Vector3(0, (Mathf.Sin(Time.time) + 1) / 5.5f + 0.25f, 0);
+        modelHolder.transform.localPosition = new Vector3(0, (Mathf.Sin(age) + 1) / 5.5f + 0.25f, 0);
         modelHolder.transform.Rotate(0, Time.deltaTime * 120f, 0);
     }
     private void OnCollisionEnter(Collision collision)
