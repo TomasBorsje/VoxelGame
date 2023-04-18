@@ -37,7 +37,7 @@ public class Player : LivingEntity
         inventory.SetStackInSlot(1, new ItemStack(new BlockItem(BlockRegistry.GLASS), 8));
         inventory.SetStackInSlot(2, new ItemStack(new BlockItem(BlockRegistry.DANDELION), 8));
 
-        // Setup ui
+        // Setup ui inventory slots
         GameObject canvas = GameObject.FindGameObjectWithTag("Canvas");
         for (int hotbarSlot = 0; hotbarSlot < HOTBAR_SIZE; hotbarSlot++) 
         {

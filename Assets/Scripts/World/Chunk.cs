@@ -21,7 +21,9 @@ public class Chunk : MonoBehaviour
 
     public MeshRenderer meshRenderer;
     public MeshFilter meshFilter;
-    Mesh mesh;
+    public MeshCollider meshCollider;
+    Mesh displayMesh;
+    Mesh colliderMesh;
 
     bool shouldUpdate = false;
     bool initialized = false;
@@ -40,7 +42,9 @@ public class Chunk : MonoBehaviour
 
         meshRenderer = gameObject.AddComponent<MeshRenderer>();
         meshFilter = gameObject.AddComponent<MeshFilter>();
-        mesh = new Mesh();
+        meshCollider = gameObject.AddComponent<MeshCollider>();
+        displayMesh = new Mesh();
+        colliderMesh = new Mesh();
 
         // Create our chunk renderers and store them (no gameobject needed!)
         int i = 0;
@@ -203,9 +207,11 @@ public class Chunk : MonoBehaviour
 
     void RenderMesh()
     {
-        mesh.Clear();
+        displayMesh.Clear();
         CombineInstance[] combine = new CombineInstance[renderers.Length];
+        // track which materials we need (empty meshes aren't merged, so need to align counts)
         List<RenderLayer> materialsNeeded = new List<RenderLayer>(renderers.Length);
+        // render each layer
         for(int i = 0; i < renderers.Length; i++)
         {
             Mesh mesh = renderers[i].RenderChunk();
@@ -215,8 +221,8 @@ public class Chunk : MonoBehaviour
             }
             combine[i].mesh = mesh;
         }
-        mesh.CombineMeshes(combine, false, false);
-        meshFilter.sharedMesh = mesh;
+        displayMesh.CombineMeshes(combine, false, false);
+        meshFilter.sharedMesh = displayMesh;
 
         Material[] mats = new Material[materialsNeeded.Count];
         for (int i = 0; i < materialsNeeded.Count; i++)
@@ -224,6 +230,12 @@ public class Chunk : MonoBehaviour
             mats[i] = TextureAtlas.Instance.GetAtlasMaterial(materialsNeeded[i]);
         }
         meshRenderer.materials = mats;
+
+        // Collider mesh for physics
+        colliderMesh.Clear();
+        colliderMesh = ChunkColliderMeshGenerator.GetColliderMesh(this);
+        meshCollider.sharedMesh = colliderMesh;
+
         shouldUpdate = false;
     }
 }

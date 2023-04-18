@@ -12,20 +12,24 @@ public class Block : IHasId
     protected string _id;
     protected RenderLayer _layer;
     protected bool _hasCustomModel;
+    protected bool _hasCustomCollider;
     public string Name { get => _name; }
     public string Id { get => _id; }
     public RenderLayer RenderLayer { get => _layer; }
     public bool HasCustomModel => _hasCustomModel;
+    public bool HasCustomCollider => _hasCustomCollider;
 
-    public Block(string id, string name, RenderLayer layer, bool hasCustomModel = false)
+    public Block(string id, string name, RenderLayer layer, bool hasCustomModel = false, bool hasCustomCollider = false)
     {
         _id = id;
         _name = name;
         _layer = layer;
         _hasCustomModel = hasCustomModel;
+        _hasCustomCollider = hasCustomCollider;
     }
 
     public bool Transparent => _layer == RenderLayer.Transparent || _layer == RenderLayer.Water || _layer == RenderLayer.Leaves;
     public bool Empty => _id == "game:air";
     public virtual void ApplyCustomModel(List<Vector3> vertices, List<Vector2> uvs, List<int> tris, Vector3 blockPos) { }
+    public virtual void AddCustomCollider(List<Vector3> vertices, List<int> tris, Vector3 blockPos) { }
 }

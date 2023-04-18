@@ -195,4 +195,98 @@ public static class MeshUtils
         triangles.Add(vStart + 4);
         triangles.Add(vStart + 7);
     }
+
+    // DOES NOT ADD UVS!
+    public static void AddCubeMesh(IList<Vector3> vertices, IList<int> triangles, Vector3 pos, FaceDirection face)
+    {
+        int vStart = vertices.Count;
+
+        switch (face)
+        {
+            case FaceDirection.North:
+                vertices.Add(pos + Vector3.forward + Vector3.right);
+                vertices.Add(pos + Vector3.forward + Vector3.up + Vector3.right);
+                vertices.Add(pos + Vector3.forward + Vector3.up);
+                vertices.Add(pos + Vector3.forward);
+
+
+                triangles.Add(vStart);
+                triangles.Add(vStart + 1);
+                triangles.Add(vStart + 2);
+                triangles.Add(vStart + 3);
+                triangles.Add(vStart);
+                triangles.Add(vStart + 2);
+                break;
+
+            case FaceDirection.South:
+                vertices.Add(pos);
+                vertices.Add(pos + Vector3.up);
+                vertices.Add(pos + Vector3.up + Vector3.right);
+                vertices.Add(pos + Vector3.right);
+
+                triangles.Add(vStart);
+                triangles.Add(vStart + 1);
+                triangles.Add(vStart + 2);
+                triangles.Add(vStart + 3);
+                triangles.Add(vStart);
+                triangles.Add(vStart + 2);
+                break;
+
+            case FaceDirection.East:
+                vertices.Add(pos + Vector3.right);
+                vertices.Add(pos + Vector3.up + Vector3.right);
+                vertices.Add(pos + Vector3.up + Vector3.forward + Vector3.right);
+                vertices.Add(pos + Vector3.forward + Vector3.right);
+
+                triangles.Add(vStart);
+                triangles.Add(vStart + 1);
+                triangles.Add(vStart + 2);
+                triangles.Add(vStart + 3);
+                triangles.Add(vStart);
+                triangles.Add(vStart + 2);
+                break;
+
+            case FaceDirection.West:
+                vertices.Add(pos + Vector3.forward);
+                vertices.Add(pos);
+                vertices.Add(pos + Vector3.up);
+                vertices.Add(pos + Vector3.forward + Vector3.up);
+
+                triangles.Add(vStart + 2);
+                triangles.Add(vStart + 1);
+                triangles.Add(vStart);
+                triangles.Add(vStart + 2);
+                triangles.Add(vStart);
+                triangles.Add(vStart + 3);
+                break;
+
+            case FaceDirection.Bottom:
+                vertices.Add(pos);
+                vertices.Add(pos + Vector3.forward);
+                vertices.Add(pos + Vector3.forward + Vector3.right);
+                vertices.Add(pos + Vector3.right);
+
+                triangles.Add(vStart + 2);
+                triangles.Add(vStart + 1);
+                triangles.Add(vStart);
+                triangles.Add(vStart);
+                triangles.Add(vStart + 3);
+                triangles.Add(vStart + 2);
+                break;
+
+            case FaceDirection.Top:
+                vertices.Add(pos + Vector3.up);
+                vertices.Add(pos + Vector3.up + Vector3.forward);
+                vertices.Add(pos + Vector3.up + Vector3.forward + Vector3.right);
+                vertices.Add(pos + Vector3.up + Vector3.right);
+
+                triangles.Add(vStart);
+                triangles.Add(vStart + 1);
+                triangles.Add(vStart + 3);
+                triangles.Add(vStart + 1);
+                triangles.Add(vStart + 2);
+                triangles.Add(vStart + 3);
+                break;
+        }
+    }
 }
