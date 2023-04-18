@@ -19,8 +19,13 @@ public class Chunk : MonoBehaviour
 
     ChunkRenderer[] renderers = new ChunkRenderer[Enum.GetValues(typeof(RenderLayer)).Length];
 
+    public MeshRenderer meshRenderer;
+    public MeshFilter meshFilter;
+    Mesh mesh;
+
     bool shouldUpdate = false;
     bool initialized = false;
+
 
     // X, Y, Z
     Block[,,] blocks = new Block[CHUNK_WIDTH, CHUNK_HEIGHT, CHUNK_WIDTH];
@@ -33,21 +38,22 @@ public class Chunk : MonoBehaviour
         chunkX = Mathf.FloorToInt(transform.position.x / (CHUNK_WIDTH * BLOCK_SIZE));
         chunkZ = Mathf.FloorToInt(transform.position.z / (CHUNK_WIDTH * BLOCK_SIZE));
 
-        // Create our chunk renderers as child gameobjects
+        meshRenderer = gameObject.AddComponent<MeshRenderer>();
+        meshFilter = gameObject.AddComponent<MeshFilter>();
+        mesh = new Mesh();
+
+        // Create our chunk renderers and store them (no gameobject needed!)
         int i = 0;
         foreach(RenderLayer layer in Enum.GetValues(typeof(RenderLayer)))
         {
-            GameObject renderer = new GameObject(layer.ToString() + " Renderer");
-            renderer.transform.SetParent(gameObject.transform);
-            renderer.transform.localPosition = Vector3.zero;
             ChunkRenderer comp = null;
             // todo: rename leaves renderer to wavy
             switch (layer) {
-                case RenderLayer.Opaque: { comp = renderer.AddComponent<OpaqueChunkRenderer>(); break; }
-                case RenderLayer.Water: { comp = renderer.AddComponent<WaterChunkRenderer>(); break; }
-                case RenderLayer.Leaves: { comp = renderer.AddComponent<LeavesChunkRenderer>(); break; }
-                case RenderLayer.Transparent: { comp = renderer.AddComponent<TransparentChunkRenderer>(); break; }
-                default: { comp = renderer.AddComponent<OpaqueChunkRenderer>(); break; }
+                case RenderLayer.Opaque: { comp = new OpaqueChunkRenderer(); break; }
+                case RenderLayer.Water: { comp = new WaterChunkRenderer(); break; }
+                case RenderLayer.Leaves: { comp = new LeavesChunkRenderer(); break; }
+                case RenderLayer.Transparent: { comp = new TransparentChunkRenderer(); break; }
+                default: { comp = new OpaqueChunkRenderer(); break; }
             }
             // todo: remove layer arg
             comp.Init(this, layer);
@@ -98,10 +104,18 @@ public class Chunk : MonoBehaviour
         {
             for (int localZ = 0; localZ < CHUNK_WIDTH; localZ++)
             {
-                if (UnityEngine.Random.Range(0f, 1f) < 0.007)
+                float treeChance = UnityEngine.Random.Range(0f, 1f);
+                if (treeChance < 0.007)
                 {
                     Vector3Int topmost = GetTopmostBlock(localX, localZ, new Block[] { BlockRegistry.AIR, BlockRegistry.LEAVES });
-                    GenerateTree(topmost.x, topmost.y, topmost.z);
+                    if (treeChance < 0.0035)
+                    {
+                        GenerateTree(topmost.x, topmost.y, topmost.z);
+                    }
+                    else
+                    {
+                        blocks[topmost.x, topmost.y, topmost.z] = BlockRegistry.DANDELION;
+                    }
                 }
             }
         }
@@ -189,10 +203,27 @@ public class Chunk : MonoBehaviour
 
     void RenderMesh()
     {
-        foreach(ChunkRenderer renderer in renderers)
+        mesh.Clear();
+        CombineInstance[] combine = new CombineInstance[renderers.Length];
+        List<RenderLayer> materialsNeeded = new List<RenderLayer>(renderers.Length);
+        for(int i = 0; i < renderers.Length; i++)
         {
-            renderer.RenderChunk();
+            Mesh mesh = renderers[i].RenderChunk();
+            if(mesh.vertexCount>0)
+            {
+                materialsNeeded.Add(renderers[i].layer);
+            }
+            combine[i].mesh = mesh;
         }
+        mesh.CombineMeshes(combine, false, false);
+        meshFilter.sharedMesh = mesh;
+
+        Material[] mats = new Material[materialsNeeded.Count];
+        for (int i = 0; i < materialsNeeded.Count; i++)
+        {
+            mats[i] = TextureAtlas.Instance.GetAtlasMaterial(materialsNeeded[i]);
+        }
+        meshRenderer.materials = mats;
         shouldUpdate = false;
     }
 }

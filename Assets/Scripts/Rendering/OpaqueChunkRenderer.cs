@@ -6,9 +6,10 @@ using static MeshUtils;
 
 public class OpaqueChunkRenderer : ChunkRenderer
 {
-    public override void RenderChunk()
+    public override Mesh RenderChunk()
     {
-        mesh.Clear();
+        Mesh mesh = new Mesh();
+        mesh.name = "ChunkMesh-" + layer.ToString();
         List<Vector3> vertices = new List<Vector3>();
         List<Vector2> uvs = new List<Vector2>();
         List<int> triangles = new List<int>();
@@ -31,15 +32,21 @@ public class OpaqueChunkRenderer : ChunkRenderer
                     Vector3 blockPos = new Vector3(x, y, z);
                     // Render a block
 
+                    if (block.HasCustomModel)
+                    {
+                        block.ApplyCustomModel(vertices, uvs, triangles, blockPos);
+                        continue;
+                    }
+
                     // Top
                     if (y == CHUNK_HEIGHT - 1 || blocks[x, y + 1, z].Empty || blocks[x, y + 1, z].RenderLayer != RenderLayer.Opaque)
                     {
-                        AddBlockFaceVertices(block, vertices, uvs, triangles, blockPos, FaceDirection.Top);
+                        AddBlockMesh(block, vertices, uvs, triangles, blockPos, FaceDirection.Top);
                     }
                     // Bottom
                     if (y == 0 || blocks[x, y - 1, z].Empty || blocks[x, y - 1, z].RenderLayer != RenderLayer.Opaque)
                     {
-                        AddBlockFaceVertices(block, vertices, uvs, triangles, blockPos, FaceDirection.Bottom);
+                        AddBlockMesh(block, vertices, uvs, triangles, blockPos, FaceDirection.Bottom);
                     }
                     // North
                     if (z == CHUNK_WIDTH - 1)
@@ -49,13 +56,13 @@ public class OpaqueChunkRenderer : ChunkRenderer
                             Block neighbourBlock = WorldGenHandler.INSTANCE.GetChunk(chunkX, chunkZ + 1).GetBlock(x, y, 0);
                             if (neighbourBlock.Empty || neighbourBlock.RenderLayer != RenderLayer.Opaque)
                             {
-                                AddBlockFaceVertices(block, vertices, uvs, triangles, blockPos, FaceDirection.North);
+                                AddBlockMesh(block, vertices, uvs, triangles, blockPos, FaceDirection.North);
                             }
                         }
                     }
                     else if (blocks[x, y, z + 1].Empty || blocks[x, y, z + 1].RenderLayer != RenderLayer.Opaque)
                     {
-                        AddBlockFaceVertices(block, vertices, uvs, triangles, blockPos, FaceDirection.North);
+                        AddBlockMesh(block, vertices, uvs, triangles, blockPos, FaceDirection.North);
                     }
                     // South
                     if (z == 0)
@@ -65,13 +72,13 @@ public class OpaqueChunkRenderer : ChunkRenderer
                             Block neighbourBlock = WorldGenHandler.INSTANCE.GetChunk(chunkX, chunkZ - 1).GetBlock(x, y, CHUNK_WIDTH - 1);
                             if (neighbourBlock.Empty || neighbourBlock.RenderLayer != RenderLayer.Opaque)
                             {
-                                AddBlockFaceVertices(block, vertices, uvs, triangles, blockPos, FaceDirection.South);
+                                AddBlockMesh(block, vertices, uvs, triangles, blockPos, FaceDirection.South);
                             }
                         }
                     }
                     else if (blocks[x, y, z - 1].Empty || blocks[x, y, z - 1].RenderLayer != RenderLayer.Opaque)
                     {
-                        AddBlockFaceVertices(block, vertices, uvs, triangles, blockPos, FaceDirection.South);
+                        AddBlockMesh(block, vertices, uvs, triangles, blockPos, FaceDirection.South);
                     }
                     // East
                     if (x == CHUNK_WIDTH - 1)
@@ -81,13 +88,13 @@ public class OpaqueChunkRenderer : ChunkRenderer
                             Block neighbourBlock = WorldGenHandler.INSTANCE.GetChunk(chunkX + 1, chunkZ).GetBlock(0, y, z);
                             if (neighbourBlock.Empty || neighbourBlock.RenderLayer != RenderLayer.Opaque)
                             {
-                                AddBlockFaceVertices(block, vertices, uvs, triangles, blockPos, FaceDirection.East);
+                                AddBlockMesh(block, vertices, uvs, triangles, blockPos, FaceDirection.East);
                             }
                         }
                     }
                     else if (blocks[x + 1, y, z].Empty || blocks[x + 1, y, z].RenderLayer != RenderLayer.Opaque)
                     {
-                        AddBlockFaceVertices(block, vertices, uvs, triangles, blockPos, FaceDirection.East);
+                        AddBlockMesh(block, vertices, uvs, triangles, blockPos, FaceDirection.East);
                     }
                     // West
                     if (x == 0)
@@ -97,13 +104,13 @@ public class OpaqueChunkRenderer : ChunkRenderer
                             Block neighbourBlock = WorldGenHandler.INSTANCE.GetChunk(chunkX - 1, chunkZ).GetBlock(CHUNK_WIDTH - 1, y, z);
                             if (neighbourBlock.Empty || neighbourBlock.RenderLayer != RenderLayer.Opaque)
                             {
-                                AddBlockFaceVertices(block, vertices, uvs, triangles, blockPos, FaceDirection.West);
+                                AddBlockMesh(block, vertices, uvs, triangles, blockPos, FaceDirection.West);
                             }
                         }
                     }
                     else if (blocks[x - 1, y, z].Empty || blocks[x - 1, y, z].RenderLayer != RenderLayer.Opaque)
                     {
-                        AddBlockFaceVertices(block, vertices, uvs, triangles, blockPos, FaceDirection.West);
+                        AddBlockMesh(block, vertices, uvs, triangles, blockPos, FaceDirection.West);
                     }
                 }
             }
@@ -114,6 +121,7 @@ public class OpaqueChunkRenderer : ChunkRenderer
         mesh.SetTriangles(triangles, 0);
         mesh.RecalculateNormals();
         mesh.RecalculateBounds();
-        meshCollider.sharedMesh = mesh;
+        mesh.Optimize();
+        return mesh;
     }
 }

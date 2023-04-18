@@ -6,9 +6,10 @@ using static MeshUtils;
 
 public class LeavesChunkRenderer : ChunkRenderer
 {
-    public override void RenderChunk()
+    public override Mesh RenderChunk()
     {
-        mesh.Clear();
+        Mesh mesh = new Mesh();
+        mesh.name = "ChunkMesh-" + layer.ToString();
         List<Vector3> vertices = new List<Vector3>();
         List<Vector2> uvs = new List<Vector2>();
         List<int> triangles = new List<int>();
@@ -29,20 +30,28 @@ public class LeavesChunkRenderer : ChunkRenderer
                     if (block.Empty || block.RenderLayer != layer) { continue; }
 
                     Vector3 blockPos = new Vector3(x, y, z);
+
                     // Render a block
+
+                    if (block.HasCustomModel)
+                    {
+                        block.ApplyCustomModel(vertices, uvs, triangles, blockPos);
+                        continue;
+                    }
+
                     // we always render each face of the leaves, as they must be seen through eachother and
                     // the shader leaves gaps next to solid blocks due to the waving
-                    AddBlockFaceVertices(block, vertices, uvs, triangles, blockPos, FaceDirection.Top);
+                    AddBlockMesh(block, vertices, uvs, triangles, blockPos, FaceDirection.Top);
 
-                    AddBlockFaceVertices(block, vertices, uvs, triangles, blockPos, FaceDirection.Bottom);
+                    AddBlockMesh(block, vertices, uvs, triangles, blockPos, FaceDirection.Bottom);
 
-                    AddBlockFaceVertices(block, vertices, uvs, triangles, blockPos, FaceDirection.North);
+                    AddBlockMesh(block, vertices, uvs, triangles, blockPos, FaceDirection.North);
 
-                    AddBlockFaceVertices(block, vertices, uvs, triangles, blockPos, FaceDirection.South);
+                    AddBlockMesh(block, vertices, uvs, triangles, blockPos, FaceDirection.South);
 
-                    AddBlockFaceVertices(block, vertices, uvs, triangles, blockPos, FaceDirection.East);
+                    AddBlockMesh(block, vertices, uvs, triangles, blockPos, FaceDirection.East);
 
-                    AddBlockFaceVertices(block, vertices, uvs, triangles, blockPos, FaceDirection.West);
+                    AddBlockMesh(block, vertices, uvs, triangles, blockPos, FaceDirection.West);
 
                 }
             }
@@ -53,6 +62,7 @@ public class LeavesChunkRenderer : ChunkRenderer
         mesh.SetTriangles(triangles, 0);
         mesh.RecalculateNormals();
         mesh.RecalculateBounds();
-        meshCollider.sharedMesh = mesh;
+        mesh.Optimize();
+        return mesh;
     }
 }

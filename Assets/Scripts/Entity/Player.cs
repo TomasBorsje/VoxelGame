@@ -35,6 +35,7 @@ public class Player : LivingEntity
         inventory = new ItemContainer(INVENTORY_SIZE);
         inventory.SetStackInSlot(0, new ItemStack(new BlockItem(BlockRegistry.PLANKS), 8));
         inventory.SetStackInSlot(1, new ItemStack(new BlockItem(BlockRegistry.GLASS), 8));
+        inventory.SetStackInSlot(2, new ItemStack(new BlockItem(BlockRegistry.DANDELION), 8));
 
         // Setup ui
         GameObject canvas = GameObject.FindGameObjectWithTag("Canvas");
@@ -52,7 +53,6 @@ public class Player : LivingEntity
     {
         base.Update();
         HandleInputs();
-        Debug.Log("Inventory: " + inventory);
     }
     void HandleInputs()
     {

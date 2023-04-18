@@ -72,7 +72,7 @@ public class TextureAtlas
         _leavesMaterial.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
         renderMatDict[RenderLayer.Leaves] = _leavesMaterial;
 
-        Debug.Log("Loaded texture atlas!");
+        Debug.Log($"Loaded texture atlas with {renderMatDict.Count} materials!");
     }
     public Rect GetUVs(string id)
     {

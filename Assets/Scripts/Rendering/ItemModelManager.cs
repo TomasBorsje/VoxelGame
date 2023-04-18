@@ -32,19 +32,21 @@ public class ItemModelManager
         List<Vector3> vertices = new List<Vector3>();
         List<Vector2> uvs = new List<Vector2>();
         List<int> triangles = new List<int>();
+
+        if(block.HasCustomModel)
+        {
+            block.ApplyCustomModel(vertices, uvs, triangles, modelOffset);
+        }
+        else
+        {
+            AddBlockMesh(block, vertices, uvs, triangles, modelOffset, FaceDirection.Top);
+            AddBlockMesh(block, vertices, uvs, triangles, modelOffset, FaceDirection.Bottom);
+            AddBlockMesh(block, vertices, uvs, triangles, modelOffset, FaceDirection.North);
+            AddBlockMesh(block, vertices, uvs, triangles, modelOffset, FaceDirection.South);
+            AddBlockMesh(block, vertices, uvs, triangles, modelOffset, FaceDirection.East);
+            AddBlockMesh(block, vertices, uvs, triangles, modelOffset, FaceDirection.West);
+        }
         
-
-        AddBlockFaceVertices(block, vertices, uvs, triangles, modelOffset, FaceDirection.Top);
-
-        AddBlockFaceVertices(block, vertices, uvs, triangles, modelOffset, FaceDirection.Bottom);
-
-        AddBlockFaceVertices(block, vertices, uvs, triangles, modelOffset, FaceDirection.North);
-
-        AddBlockFaceVertices(block, vertices, uvs, triangles, modelOffset, FaceDirection.South);
-
-        AddBlockFaceVertices(block, vertices, uvs, triangles, modelOffset, FaceDirection.East);
-
-        AddBlockFaceVertices(block, vertices, uvs, triangles, modelOffset, FaceDirection.West);
 
         mesh.SetVertices(vertices);
         mesh.SetUVs(0, uvs);

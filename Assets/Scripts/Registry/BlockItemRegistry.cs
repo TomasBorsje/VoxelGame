@@ -15,4 +15,6 @@ public class BlockItemRegistry
     public static readonly Func<BlockItem> WATER = ITEMS.Register("game:water", () => { return new BlockItem(BlockRegistry.WATER); });
     public static readonly Func<BlockItem> LOG = ITEMS.Register("game:log", () => { return new BlockItem(BlockRegistry.LOG); });
     public static readonly Func<BlockItem> LEAVES = ITEMS.Register("game:leaves", () => { return new BlockItem(BlockRegistry.LEAVES); });
+
+    public static readonly Func<BlockItem> DANDELION = ITEMS.Register("game:dandelion", () => { return new BlockItem(BlockRegistry.DANDELION); });
 }

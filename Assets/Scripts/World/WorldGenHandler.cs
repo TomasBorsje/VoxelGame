@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class WorldGenHandler : MonoBehaviour
 {
+    private int WORLD_SEED = 123123;
     public static int RENDER_DISTANCE = 11;
     public static WorldGenHandler INSTANCE = null;
 
@@ -60,6 +61,7 @@ public class WorldGenHandler : MonoBehaviour
             Destroy(this.gameObject);
         }
         INSTANCE = this;
+        Random.InitState(WORLD_SEED);
     }
 
     void Start()
