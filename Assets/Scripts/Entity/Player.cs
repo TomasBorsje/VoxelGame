@@ -118,6 +118,7 @@ public class Player : LivingEntity
             // Don't interact with air!
             if (!hitBlock.Empty)
             {
+                BlockBreakEffect.CreateBlockBreakEffect(Vector3Int.FloorToInt(forwardHit) + new Vector3(0.5f, 0.5f, 0.5f));
                 // Delete block
                 chunkPos.Item1.SetBlock(chunkPos.Item2.x, chunkPos.Item2.y, chunkPos.Item2.z, BlockRegistry.AIR);
                 // Spawn item entity!
