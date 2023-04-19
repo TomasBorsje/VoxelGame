@@ -49,20 +49,31 @@ public class TextureAtlas
         Material _opaqueMaterial = new Material(Shader.Find(OpaqueShaderName));
         _opaqueMaterial.mainTexture = atlasTex;
         _opaqueMaterial.name = "OpaqueAtlasMat";
+        HDMaterial.ValidateMaterial(_opaqueMaterial);
         renderMatDict[RenderLayer.Opaque] = _opaqueMaterial;
+        
 
         // generate transparent material
         Material _transparentMaterial = new Material(Shader.Find(OpaqueShaderName));
         _transparentMaterial.mainTexture = atlasTex;
         _transparentMaterial.name = "TransparentAtlasMat";
-        _transparentMaterial.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+        _transparentMaterial.SetFloat("_TransparentDepthPrepassEnable", 1f);
+        HDMaterial.SetSurfaceType(_transparentMaterial, true);
+        HDMaterial.SetAlphaClipping(_transparentMaterial, true);
+        HDMaterial.SetAlphaCutoff(_transparentMaterial, 0.5f);
+        HDMaterial.ValidateMaterial(_transparentMaterial);
         renderMatDict[RenderLayer.Transparent] = _transparentMaterial;
 
         // generate water material
         Material _waterMaterial = new Material(Shader.Find(WaterShaderName));
         _waterMaterial.SetTexture("_MainTexture", atlasTex);
         _waterMaterial.name = "WaterAtlasMat";
-        _waterMaterial.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+        _waterMaterial.SetFloat("_TransparentSortPriority", 1f);
+        _waterMaterial.SetFloat("_TransparentDepthPrepassEnable", 1f);
+        HDMaterial.SetSurfaceType(_waterMaterial, true);
+        HDMaterial.SetAlphaClipping(_waterMaterial, true);
+        HDMaterial.SetAlphaCutoff(_waterMaterial, 0.5f);
+        HDMaterial.ValidateMaterial(_waterMaterial);
         renderMatDict[RenderLayer.Water] = _waterMaterial;
 
         // generate leaves material
@@ -70,7 +81,11 @@ public class TextureAtlas
         Material _leavesMaterial = new Material(Shader.Find(LeavesShaderName));
         _leavesMaterial.SetTexture("_MainTexture", atlasTex);
         _leavesMaterial.name = "LeafAtlasMat";
-        _leavesMaterial.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+        _leavesMaterial.SetFloat("_TransparentDepthPrepassEnable", 1f);
+        HDMaterial.SetSurfaceType(_leavesMaterial, true);
+        HDMaterial.SetAlphaClipping(_leavesMaterial, true);
+        HDMaterial.SetAlphaCutoff(_leavesMaterial, 0.5f);
+        HDMaterial.ValidateMaterial(_leavesMaterial);
         renderMatDict[RenderLayer.Leaves] = _leavesMaterial;
 
         Debug.Log($"Loaded texture atlas with {renderMatDict.Count} materials!");
