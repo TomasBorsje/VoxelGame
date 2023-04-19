@@ -39,11 +39,12 @@ public class WaterChunkRenderer : ChunkRenderer
                     }
 
                     // Top
-                    // Always render the top of water, as we are not a full block!
-                    AddBlockMesh(block, vertices, uvs, triangles, blockPos, FaceDirection.Top);
-                    
+                    if (y == CHUNK_HEIGHT - 1 || blocks[x, y + 1, z].Empty || blocks[x, y + 1, z].RenderLayer != RenderLayer.Water)
+                    {
+                        AddBlockMesh(block, vertices, uvs, triangles, blockPos, FaceDirection.Top);
+                    }
                     // Bottom
-                    if (y == 0 || blocks[x, y - 1, z].Empty || !blocks[x, y - 1, z].Transparent)
+                    if (y == 0 || blocks[x, y - 1, z].Empty || blocks[x, y - 1, z].RenderLayer != RenderLayer.Water)
                     {
                         AddBlockMesh(block, vertices, uvs, triangles, blockPos, FaceDirection.Bottom);
                     }
@@ -53,13 +54,13 @@ public class WaterChunkRenderer : ChunkRenderer
                         if (WorldGenHandler.INSTANCE.ChunkLoaded(chunkX, chunkZ + 1))
                         {
                             Block neighbourBlock = WorldGenHandler.INSTANCE.GetChunk(chunkX, chunkZ + 1).GetBlock(x, y, 0);
-                            if (neighbourBlock.Empty || !neighbourBlock.Transparent)
+                            if (neighbourBlock.Empty || neighbourBlock.RenderLayer != RenderLayer.Water)
                             {
                                 AddBlockMesh(block, vertices, uvs, triangles, blockPos, FaceDirection.North);
                             }
                         }
                     }
-                    else if (blocks[x, y, z + 1].Empty || !blocks[x, y, z + 1].Transparent)
+                    else if (blocks[x, y, z + 1].Empty || blocks[x, y, z + 1].RenderLayer != RenderLayer.Water)
                     {
                         AddBlockMesh(block, vertices, uvs, triangles, blockPos, FaceDirection.North);
                     }
@@ -69,13 +70,13 @@ public class WaterChunkRenderer : ChunkRenderer
                         if (WorldGenHandler.INSTANCE.ChunkLoaded(chunkX, chunkZ - 1))
                         {
                             Block neighbourBlock = WorldGenHandler.INSTANCE.GetChunk(chunkX, chunkZ - 1).GetBlock(x, y, CHUNK_WIDTH - 1);
-                            if (neighbourBlock.Empty || !neighbourBlock.Transparent)
+                            if (neighbourBlock.Empty || neighbourBlock.RenderLayer != RenderLayer.Water)
                             {
                                 AddBlockMesh(block, vertices, uvs, triangles, blockPos, FaceDirection.South);
                             }
                         }
                     }
-                    else if (blocks[x, y, z - 1].Empty || !blocks[x, y, z - 1].Transparent)
+                    else if (blocks[x, y, z - 1].Empty || blocks[x, y, z - 1].RenderLayer != RenderLayer.Water)
                     {
                         AddBlockMesh(block, vertices, uvs, triangles, blockPos, FaceDirection.South);
                     }
@@ -85,13 +86,13 @@ public class WaterChunkRenderer : ChunkRenderer
                         if (WorldGenHandler.INSTANCE.ChunkLoaded(chunkX + 1, chunkZ))
                         {
                             Block neighbourBlock = WorldGenHandler.INSTANCE.GetChunk(chunkX + 1, chunkZ).GetBlock(0, y, z);
-                            if (neighbourBlock.Empty || !neighbourBlock.Transparent)
+                            if (neighbourBlock.Empty || neighbourBlock.RenderLayer != RenderLayer.Water)
                             {
                                 AddBlockMesh(block, vertices, uvs, triangles, blockPos, FaceDirection.East);
                             }
                         }
                     }
-                    else if (blocks[x + 1, y, z].Empty || !blocks[x + 1, y, z].Transparent)
+                    else if (blocks[x + 1, y, z].Empty || blocks[x + 1, y, z].RenderLayer != RenderLayer.Water)
                     {
                         AddBlockMesh(block, vertices, uvs, triangles, blockPos, FaceDirection.East);
                     }
@@ -101,13 +102,13 @@ public class WaterChunkRenderer : ChunkRenderer
                         if (WorldGenHandler.INSTANCE.ChunkLoaded(chunkX - 1, chunkZ))
                         {
                             Block neighbourBlock = WorldGenHandler.INSTANCE.GetChunk(chunkX - 1, chunkZ).GetBlock(CHUNK_WIDTH - 1, y, z);
-                            if (neighbourBlock.Empty || !neighbourBlock.Transparent)
+                            if (neighbourBlock.Empty || neighbourBlock.RenderLayer != RenderLayer.Water)
                             {
                                 AddBlockMesh(block, vertices, uvs, triangles, blockPos, FaceDirection.West);
                             }
                         }
                     }
-                    else if (blocks[x - 1, y, z].Empty || !blocks[x - 1, y, z].Transparent)
+                    else if (blocks[x - 1, y, z].Empty || blocks[x - 1, y, z].RenderLayer != RenderLayer.Water)
                     {
                         AddBlockMesh(block, vertices, uvs, triangles, blockPos, FaceDirection.West);
                     }

@@ -28,7 +28,7 @@ public class Block : IHasId
         _hasCustomCollider = hasCustomCollider;
     }
 
-    public bool Transparent => _layer == RenderLayer.Transparent || _layer == RenderLayer.Water || _layer == RenderLayer.Leaves;
+    public bool Transparent => _layer == RenderLayer.Transparent || _layer == RenderLayer.Leaves;
     public bool Empty => _id == "game:air";
     public virtual void ApplyCustomModel(List<Vector3> vertices, List<Vector2> uvs, List<int> tris, Vector3 blockPos) { }
     public virtual void AddCustomCollider(List<Vector3> vertices, List<int> tris, Vector3 blockPos) { }

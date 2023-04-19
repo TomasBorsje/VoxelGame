@@ -5,9 +5,9 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class InventorySlotDisplay : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
+public class HotbarSlotDisplay : MonoBehaviour, IPointerClickHandler
 {
-    private static Color HoveredColour = new Color(225 / 255f, 225 / 255f, 225 / 255f);
+    private static Color SelectedColour = Color.white;
     private static Color UnselectedColour = new Color(200/255f, 200/255f, 200/255f);
 
     private int _slotNum;
@@ -16,7 +16,6 @@ public class InventorySlotDisplay : MonoBehaviour, IPointerClickHandler, IPointe
     Image itemSprite;
     Image outline;
     TextMeshProUGUI itemCountText;
-    public bool hovered;
     public void Init(Player player, int slotNum)
     {
         _player = player;
@@ -32,7 +31,7 @@ public class InventorySlotDisplay : MonoBehaviour, IPointerClickHandler, IPointe
     void Update()
     {
         // Highlight selected slot
-        outline.color = hovered ? HoveredColour : UnselectedColour;
+        outline.color = _player.SelectedSlot == _slotNum ? SelectedColour : UnselectedColour;
 
         // Display non empty itemstack
         ItemStack displayStack = _inventory.GetStackInSlot(_slotNum);
@@ -52,16 +51,6 @@ public class InventorySlotDisplay : MonoBehaviour, IPointerClickHandler, IPointe
     }
     public void OnPointerClick(PointerEventData eventData)
     {
-        
-    }
-
-    public void OnPointerEnter(PointerEventData eventData)
-    {
-        hovered = true;
-    }
-
-    public void OnPointerExit(PointerEventData eventData)
-    {
-        hovered = false;
+        _player.selectedSlot = _slotNum;
     }
 }

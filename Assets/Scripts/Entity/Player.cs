@@ -7,9 +7,8 @@ using static Item;
 public class Player : LivingEntity
 {
     public int reachDistance = 5;
-    public static int INVENTORY_SIZE = 30;
+    public static int INVENTORY_SIZE = 36;
     public static int HOTBAR_SIZE = 9;
-    public static float UI_SCALE = 2;
 
     private static readonly KeyCode[] HOTBAR_KEYCODES = {
          KeyCode.Alpha1,
@@ -23,9 +22,9 @@ public class Player : LivingEntity
          KeyCode.Alpha9,
      };
     Camera cam;
-    InventorySlotDisplay[] uiSlots = new InventorySlotDisplay[HOTBAR_SIZE];
-    int selectedSlot = 0; // Wraps around 0-8
+    public int selectedSlot = 0; // Wraps around 0-8
     ItemContainer inventory;
+    PlayerUI ui;
 
     public ItemContainer Inventory { get => inventory; }
     public int SelectedSlot { get => selectedSlot; }
@@ -37,24 +36,43 @@ public class Player : LivingEntity
         inventory.SetStackInSlot(1, new ItemStack(new BlockItem(BlockRegistry.GLASS), 8));
         inventory.SetStackInSlot(2, new ItemStack(new BlockItem(BlockRegistry.DANDELION), 8));
 
-        // Setup ui inventory slots
-        GameObject canvas = GameObject.FindGameObjectWithTag("Canvas");
-        for (int hotbarSlot = 0; hotbarSlot < HOTBAR_SIZE; hotbarSlot++) 
-        {
-            GameObject slotHandler = Instantiate(Resources.Load<GameObject>("Prefabs/UI/InventorySlotDisplay"));
-            uiSlots[hotbarSlot] = slotHandler.GetComponent<InventorySlotDisplay>();
-            uiSlots[hotbarSlot].Init(this, hotbarSlot);
-            slotHandler.transform.SetParent(canvas.transform);
-            ((RectTransform)slotHandler.transform).localPosition = new Vector2(40*hotbarSlot*UI_SCALE-40*4.5f*UI_SCALE, -350);
-            slotHandler.transform.localScale = Vector3.one * UI_SCALE;
-        }
+        ui = new PlayerUI(this);
     }
     protected override void Update()
     {
         base.Update();
-        HandleInputs();
+        
+        HandleGeneralInputs();
+        if (ui.UiOpen)
+        {
+            HandleUiInputs();
+        }
+        else
+        {
+            HandleWorldInputs();
+        }
+        ui.UpdateUI();
     }
-    void HandleInputs()
+    void HandleUiInputs()
+    {
+        // Click on slots, etc!
+        // Cursor will be visible.
+    }
+    void HandleGeneralInputs()
+    {
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            if (ui.CurrentScreen == PlayerUI.Screen.None)
+            {
+                ui.ShowScreen(PlayerUI.Screen.Inventory);
+            }
+            else
+            {
+                ui.ShowScreen(PlayerUI.Screen.None);
+            }
+        }
+    }
+    void HandleWorldInputs()
     {
         // Try to break block
         if(Input.GetKeyDown(KeyCode.Mouse0))
