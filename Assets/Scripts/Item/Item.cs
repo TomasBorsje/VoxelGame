@@ -18,3 +18,11 @@ public abstract class Item : IHasId
         return UseResult.Used;
     }
 }
+
+public class EmptyItem : Item
+{
+    public EmptyItem()
+    {
+        _id = "game:empty";
+    }
+}

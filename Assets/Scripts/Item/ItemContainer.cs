@@ -11,7 +11,10 @@ public class ItemContainer
     {
         _size = size;
         _itemStacks = new ItemStack[_size];
-        Array.Fill(_itemStacks, ItemStack.EMPTY);
+        for(int i = 0; i < _itemStacks.Length; i++)
+        {
+            _itemStacks[i] = ItemStack.EMPTY;
+        }
     }
     public int Size { get => _size; }
     public void SetStackInSlot(int slot, ItemStack stack)

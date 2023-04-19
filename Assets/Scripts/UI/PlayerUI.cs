@@ -12,6 +12,7 @@ public class PlayerUI
     GameObject hotbarDisplay;
     HotbarSlotDisplay[] hotbarSlots = new HotbarSlotDisplay[Player.HOTBAR_SIZE];
     InventorySlotDisplay[] invSlots = new InventorySlotDisplay[Player.INVENTORY_SIZE];
+    MouseHeldSlotDisplay mouseHeldSlot;
     GameObject inventoryDisplay;
     private Screen currentScreen;
     FirstPersonLook lookScript;
@@ -59,6 +60,15 @@ public class PlayerUI
             slotHandler.transform.localScale = Vector3.one * (UI_SCALE+1);
         }
 
+        // Create inv slot for mouse held item
+
+            GameObject heldSlotHandler = GameObject.Instantiate(Resources.Load<GameObject>("Prefabs/UI/MouseHeldSlotDisplay"));
+            mouseHeldSlot = heldSlotHandler.GetComponent<MouseHeldSlotDisplay>();
+            mouseHeldSlot.Init(this.player); // -1 for mouse held item
+            heldSlotHandler.transform.SetParent(inventoryDisplay.transform);
+            heldSlotHandler.transform.localScale = Vector3.one * (UI_SCALE + 1);
+        
+
         ShowScreen(Screen.None);
     }
     public void UpdateUI()
@@ -66,6 +76,21 @@ public class PlayerUI
         Cursor.visible = UiOpen;
         Cursor.lockState = UiOpen ? CursorLockMode.None : CursorLockMode.Locked;
         lookScript.enabled = !UiOpen;
+    }
+    public void UpdateUILate()
+    {
+        if (currentScreen == Screen.Inventory)
+        {
+            if (player.mouseHeldItem != ItemStack.EMPTY)
+            {
+                mouseHeldSlot.transform.localPosition = Input.mousePosition - new Vector3(UnityEngine.Screen.width / 2 - 20 * (UI_SCALE + 1), UnityEngine.Screen.height / 2 + 20 * (UI_SCALE + 1));
+                mouseHeldSlot.gameObject.SetActive(true);
+            }
+            else
+            {
+                mouseHeldSlot.gameObject.SetActive(false);
+            }
+        }
     }
     public void ShowScreen(Screen screen)
     {

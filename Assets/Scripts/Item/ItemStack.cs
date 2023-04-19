@@ -5,7 +5,7 @@ using static Item;
 
 public class ItemStack
 { 
-    public static readonly ItemStack EMPTY = new ItemStack(null);
+    public static readonly ItemStack EMPTY = new ItemStack(new EmptyItem());
     Item _item;
     public Item Item { get => _item; }
     int _count;
@@ -48,8 +48,11 @@ public class ItemStack
     // Merges another stack into this one, returning the remainder (or the stack unchanged if not possible).
     public ItemStack Merge(ItemStack stackToMerge)
     {
+        Debug.Log($"StackToMerge null? {stackToMerge == null}");
         // If these are not the same items, or this stack is full, don't merge.
-        if (stackToMerge == ItemStack.EMPTY || stackToMerge._item.Id != _item.Id || _count >= _item.MaxStackSize)
+        if (stackToMerge == ItemStack.EMPTY 
+            || stackToMerge._item.Id != _item.Id
+            || _count >= _item.MaxStackSize)
         {
             return stackToMerge;
         }

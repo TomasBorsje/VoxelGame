@@ -24,6 +24,7 @@ public class Player : LivingEntity
     Camera cam;
     public int selectedSlot = 0; // Wraps around 0-8
     ItemContainer inventory;
+    public ItemStack mouseHeldItem = ItemStack.EMPTY;
     PlayerUI ui;
 
     public ItemContainer Inventory { get => inventory; }
@@ -52,6 +53,10 @@ public class Player : LivingEntity
             HandleWorldInputs();
         }
         ui.UpdateUI();
+    }
+    private void LateUpdate()
+    {
+        ui.UpdateUILate();
     }
     void HandleUiInputs()
     {
