@@ -53,28 +53,45 @@ public class InventorySlotDisplay : MonoBehaviour, IPointerClickHandler, IPointe
     }
     public void OnPointerClick(PointerEventData eventData)
     {
-        if (_player.mouseHeldItem == ItemStack.EMPTY)
+        // On left click, try to merge/swap stacks!
+        if(eventData.button == PointerEventData.InputButton.Left)
         {
-            _player.mouseHeldItem = _inventory.GetStackInSlot(_slotNum);
-            _inventory.SetStackInSlot(_slotNum, ItemStack.EMPTY);
-            return;
+            if (_player.mouseHeldItem == ItemStack.EMPTY)
+            {
+                _player.mouseHeldItem = _inventory.GetStackInSlot(_slotNum);
+                _inventory.SetStackInSlot(_slotNum, ItemStack.EMPTY);
+                return;
+            }
+            if (_inventory.GetStackInSlot(_slotNum) == ItemStack.EMPTY)
+            {
+                _inventory.SetStackInSlot(_slotNum, _player.mouseHeldItem);
+                _player.mouseHeldItem = ItemStack.EMPTY;
+                return;
+            }
+            int countBefore = _player.mouseHeldItem.Count;
+            _player.mouseHeldItem = _inventory.GetStackInSlot(_slotNum).Merge(_player.mouseHeldItem);
+            if (_player.mouseHeldItem.Count == countBefore)
+            {
+                // Swap
+                ItemStack temp = _inventory.GetStackInSlot(_slotNum);
+                _inventory.SetStackInSlot(_slotNum, _player.mouseHeldItem);
+                _player.mouseHeldItem = temp;
+            }
+            // Otherwise we merged - do nothing!
         }
-        if (_inventory.GetStackInSlot(_slotNum) == ItemStack.EMPTY)
+
+        // On right click, half stack into mouse held stack if possible!
+        else if(eventData.button == PointerEventData.InputButton.Right)
         {
-            _inventory.SetStackInSlot(_slotNum, _player.mouseHeldItem);
-            _player.mouseHeldItem = ItemStack.EMPTY;
-            return;
+            // If mouse is empty and this stack is not, try to swap!
+            if (_player.mouseHeldItem == ItemStack.EMPTY && _inventory.GetStackInSlot(_slotNum) != ItemStack.EMPTY)
+            {
+                int stackCount = _inventory.GetStackInSlot(_slotNum).Count;
+                int amountToMove = stackCount / 2;
+
+                _player.mouseHeldItem = _inventory.GetStackInSlot(_slotNum).TakeAmount(amountToMove);
+            }
         }
-        int countBefore = _player.mouseHeldItem.Count;
-        _player.mouseHeldItem = _inventory.GetStackInSlot(_slotNum).Merge(_player.mouseHeldItem);
-        if(_player.mouseHeldItem.Count == countBefore)
-        {
-            // Swap
-            ItemStack temp = _inventory.GetStackInSlot(_slotNum);
-            _inventory.SetStackInSlot(_slotNum, _player.mouseHeldItem);
-            _player.mouseHeldItem = temp;
-        }
-        // Otherwise we merged
     }
 
     public void OnPointerEnter(PointerEventData eventData)

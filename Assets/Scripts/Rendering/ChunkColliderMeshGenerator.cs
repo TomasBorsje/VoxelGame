@@ -121,4 +121,40 @@ public class ChunkColliderMeshGenerator
         mesh.Optimize();
         return mesh;
     }
+
+    public static Mesh GetInteractMesh(Chunk chunk)
+    {
+        Mesh mesh = new Mesh();
+        mesh.name = "ChunkMeshInteractCollider";
+        List<Vector3> vertices = new List<Vector3>();
+        List<int> triangles = new List<int>();
+        Block[,,] blocks = chunk.GetBlocks();
+
+        for (int x = 0; x < CHUNK_WIDTH; x++)
+        {
+            for (int z = 0; z < CHUNK_WIDTH; z++)
+            {
+                for (int y = 0; y < CHUNK_HEIGHT; y++)
+                {
+                    Block block = blocks[x, y, z];
+                    // Only render our selected layer!
+                    if (block.Empty) { continue; }
+
+                    Vector3 blockPos = new Vector3(x, y, z);
+                    // Render a block
+
+                    if (block.HasCustomSelectionCollider)
+                    {
+                        block.AddSelectionCollider(vertices, triangles, blockPos);
+                    }
+                }
+            }
+        }
+
+        mesh.SetVertices(vertices);
+        mesh.SetTriangles(triangles, 0);
+        mesh.RecalculateBounds();
+        mesh.Optimize();
+        return mesh;
+    }
 }

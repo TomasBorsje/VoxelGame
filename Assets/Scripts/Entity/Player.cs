@@ -9,6 +9,7 @@ public class Player : LivingEntity
     public int reachDistance = 5;
     public static int INVENTORY_SIZE = 36;
     public static int HOTBAR_SIZE = 9;
+    static LayerMask RaycastMask;
 
     private static readonly KeyCode[] HOTBAR_KEYCODES = {
          KeyCode.Alpha1,
@@ -31,6 +32,7 @@ public class Player : LivingEntity
     public int SelectedSlot { get => selectedSlot; }
     private void Awake()
     {
+        RaycastMask = LayerMask.GetMask(new string[] { "Chunk", "SelectionRaycast" });
         cam = transform.GetComponentInChildren<Camera>();
         inventory = new ItemContainer(INVENTORY_SIZE);
         inventory.SetStackInSlot(0, new ItemStack(new BlockItem(BlockRegistry.PLANKS), 8));
@@ -130,17 +132,17 @@ public class Player : LivingEntity
         RaycastHit hit;
         Transform headTransform = GetHeadTransform();
         // Does the ray intersect any objects excluding the player layer?
-        if (Physics.Raycast(headTransform.position, headTransform.TransformDirection(Vector3.forward), out hit, reachDistance))
+        if (Physics.Raycast(headTransform.position, headTransform.TransformDirection(Vector3.forward), out hit, reachDistance, layerMask: RaycastMask))
         {
             // TODO: Fix this!!
             Vector3 forwardHit = hit.point + headTransform.TransformDirection(Vector3.forward) * 0.001f;
-            Debug.Log($"Did Hit at {forwardHit.x},{forwardHit.y},{forwardHit.z}");
             (Chunk, Vector3Int) chunkPos = WorldGenHandler.INSTANCE.WorldPosToChunkPos(forwardHit);
             // Get hit block
             Block hitBlock = chunkPos.Item1.GetBlock(chunkPos.Item2.x, chunkPos.Item2.y, chunkPos.Item2.z);
             // Don't interact with air!
             if (!hitBlock.Empty)
             {
+                // Show block break effect
                 BlockBreakEffect.CreateBlockBreakEffect(Vector3Int.FloorToInt(forwardHit) + new Vector3(0.5f, 0.5f, 0.5f));
                 // Delete block
                 chunkPos.Item1.SetBlock(chunkPos.Item2.x, chunkPos.Item2.y, chunkPos.Item2.z, BlockRegistry.AIR);

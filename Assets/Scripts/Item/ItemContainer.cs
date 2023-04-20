@@ -29,18 +29,28 @@ public class ItemContainer
     public ItemStack AddStack(ItemStack stack)
     {
         ItemStack remainder = stack;
+
+        // Try and merge with non empty stacks first
         for(int i = 0; i < _size; i++)
         {
             // If empty slot, move to there.
+            if (_itemStacks[i] != ItemStack.EMPTY)
+            {
+                // Try to merge and continue with any remainder
+                remainder = _itemStacks[i].Merge(remainder);
+                if (remainder == ItemStack.EMPTY)
+                {
+                    return ItemStack.EMPTY;
+                }
+            }
+        }
+
+        // Now try to replace any empty stacks
+        for(int i = 0; i < _size; i++)
+        {
             if(_itemStacks[i] == ItemStack.EMPTY)
             {
                 _itemStacks[i] = remainder;
-                return ItemStack.EMPTY;
-            }
-            // Try to merge and continue with any remainder
-            remainder = _itemStacks[i].Merge(remainder);
-            if (remainder == ItemStack.EMPTY)
-            {
                 return ItemStack.EMPTY;
             }
         }

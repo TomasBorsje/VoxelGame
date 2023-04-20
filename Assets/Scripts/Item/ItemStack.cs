@@ -40,6 +40,16 @@ public class ItemStack
         }
         return result;
     }
+    // Takes count items from this stack and returns them as a new stack
+    public ItemStack TakeAmount(int count)
+    {
+        if(count < 1)
+        {
+            return ItemStack.EMPTY;
+        }
+        _count -= count;
+        return new ItemStack(_item, count);
+    }
 
     public override string ToString()
     {
@@ -48,7 +58,6 @@ public class ItemStack
     // Merges another stack into this one, returning the remainder (or the stack unchanged if not possible).
     public ItemStack Merge(ItemStack stackToMerge)
     {
-        Debug.Log($"StackToMerge null? {stackToMerge == null}");
         // If these are not the same items, or this stack is full, don't merge.
         if (stackToMerge == ItemStack.EMPTY 
             || stackToMerge._item.Id != _item.Id

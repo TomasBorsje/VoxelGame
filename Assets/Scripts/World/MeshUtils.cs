@@ -289,4 +289,36 @@ public static class MeshUtils
                 break;
         }
     }
+
+    public static void AddSizedCubeMesh(List<Vector3> vertices, List<int> triangles, Vector3 blockPos, Vector3 size, Vector3 offset)
+    {
+        Vector3[] newVertices = {
+            new Vector3 (0, 0, 0) +offset + blockPos,
+            new Vector3 (size.x, 0, 0) +offset + blockPos,
+            new Vector3 (size.x, size.y, 0) +offset + blockPos,
+            new Vector3 (0, size.y, 0) +offset + blockPos,
+            new Vector3 (0, size.y, size.z) +offset + blockPos,
+            new Vector3 (size.x, size.y, size.z) +offset + blockPos,
+            new Vector3 (size.x, 0, size.z) +offset + blockPos,
+            new Vector3 (0, 0, size.z) +offset + blockPos,
+        };
+
+        int[] newTriangles = {
+            0, 2, 1, //face front
+			0, 3, 2,
+            2, 3, 4, //face top
+			2, 4, 5,
+            1, 2, 5, //face right
+			1, 5, 6,
+            0, 7, 4, //face left
+			0, 4, 3,
+            5, 4, 7, //face back
+			5, 7, 6,
+            0, 6, 7, //face bottom
+			0, 1, 6
+        };
+
+        vertices.AddRange(newVertices);
+        triangles.AddRange(newTriangles);
+    }
 }

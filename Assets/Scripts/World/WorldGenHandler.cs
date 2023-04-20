@@ -100,7 +100,6 @@ public class WorldGenHandler : MonoBehaviour
             // Get player chunk coordinates
             int playerChunkX = Mathf.FloorToInt(player.transform.position.x / (Chunk.CHUNK_WIDTH * Chunk.BLOCK_SIZE));
             int playerChunkZ = Mathf.FloorToInt(player.transform.position.z / (Chunk.CHUNK_WIDTH * Chunk.BLOCK_SIZE));
-            Debug.Log($"Player is in {playerChunkX},{playerChunkZ}");
 
             for (int renderX = playerChunkX - RENDER_DISTANCE; renderX < playerChunkX + RENDER_DISTANCE; renderX++)
             {
@@ -122,7 +121,6 @@ public class WorldGenHandler : MonoBehaviour
                 // Out of render distance (square)
                 if(Mathf.Abs(chunkX - playerChunkX) > RENDER_DISTANCE || Mathf.Abs(chunkZ - playerChunkZ) > RENDER_DISTANCE)
                 {
-                    Debug.Log($"Removing Chunk {chunkX},{chunkZ}");
                     keysToRemove.Add((chunkX, chunkZ));
                 }
             }

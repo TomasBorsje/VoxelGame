@@ -75,7 +75,7 @@ public class PlayerUI
     {
         Cursor.visible = UiOpen;
         Cursor.lockState = UiOpen ? CursorLockMode.None : CursorLockMode.Locked;
-        lookScript.enabled = !UiOpen;
+        lookScript.sensitivity = UiOpen ? 0 : 2;
     }
     public void UpdateUILate()
     {

@@ -13,6 +13,9 @@ public class Chunk : MonoBehaviour
     public static float PERLIN_SCALE = 0.1f;
     public static readonly int FLOOR_LEVEL = 16;
     public static readonly int SEA_LEVEL = 20;
+    private int SELECTION_RAYCAST_LAYER = 6;
+    private int CHUNK_COLLIDER_LAYER = 7;
+    public static readonly int RAYCAST_MASK = (1 << 6) | 7;
 
     int rootX, rootY, rootZ;
     int chunkX, chunkZ;
@@ -22,16 +25,21 @@ public class Chunk : MonoBehaviour
     public MeshRenderer meshRenderer;
     public MeshFilter meshFilter;
     public MeshCollider meshCollider;
+    // Child gameobject for raycasting
+    public MeshFilter interactFilter;
+    public MeshCollider interactCollider;
+
     Mesh displayMesh;
-    Mesh colliderMesh;
+    Mesh colliderMesh; // Movement collisions, e.g. no flower hitboxes
+    Mesh interactMesh; // Interact collisions, e.g. flower outlines for block breaking
+    // Note that interact mesh has ONLY custom hitboxes! We use both hitboxes for raycasting.
 
     bool shouldUpdate = false;
     bool initialized = false;
 
-
     // X, Y, Z
     Block[,,] blocks = new Block[CHUNK_WIDTH, CHUNK_HEIGHT, CHUNK_WIDTH];
-    public void Init()
+    public void Init(bool genNewChunk = true)
     {
         rootX = (int)transform.position.x;
         rootY = (int)transform.position.y;
@@ -45,6 +53,15 @@ public class Chunk : MonoBehaviour
         meshCollider = gameObject.AddComponent<MeshCollider>();
         displayMesh = new Mesh();
         colliderMesh = new Mesh();
+
+        // Raycasting layer
+        GameObject interactObject = new GameObject();
+        interactObject.transform.SetParent(gameObject.transform);
+        interactObject.transform.localPosition = Vector3.zero;
+        interactCollider = interactObject.AddComponent<MeshCollider>();
+        interactFilter = interactObject.AddComponent<MeshFilter>();
+        interactMesh = new Mesh();
+
 
         // Create our chunk renderers and store them (no gameobject needed!)
         int i = 0;
@@ -66,59 +83,62 @@ public class Chunk : MonoBehaviour
 
         // TODO: World gen function
         // Init to air
-        for (int localX = 0; localX < CHUNK_WIDTH; localX++)
+        if (genNewChunk)
         {
-            for (int localZ = 0; localZ < CHUNK_WIDTH; localZ++)
+            for (int localX = 0; localX < CHUNK_WIDTH; localX++)
             {
-                for (int localY = 0; localY < CHUNK_HEIGHT; localY++)
+                for (int localZ = 0; localZ < CHUNK_WIDTH; localZ++)
                 {
-                    blocks[localX, localY, localZ] = BlockRegistry.AIR;
-                }
-            }
-        }
-
-        for (int localX = 0; localX < CHUNK_WIDTH; localX++)
-        {
-            for (int localZ = 0; localZ < CHUNK_WIDTH; localZ++)
-            {
-                bool isDirt = Mathf.PerlinNoise(((rootX + localX) * 5) * 0.1f, ((rootZ + localZ)*5) * 0.1f) > 0.5f;
-                for (int localY = 0; localY < CHUNK_HEIGHT; localY++)
-                {
-                    if(localY < FLOOR_LEVEL + (CHUNK_HEIGHT-FLOOR_LEVEL) * Mathf.PerlinNoise((rootX + localX) * PERLIN_SCALE, (rootZ + localZ) * PERLIN_SCALE) * 0.6f)
+                    for (int localY = 0; localY < CHUNK_HEIGHT; localY++)
                     {
-                        blocks[localX, localY, localZ] = isDirt ? BlockRegistry.DIRT : BlockRegistry.STONE;
+                        blocks[localX, localY, localZ] = BlockRegistry.AIR;
                     }
                 }
             }
-        }
 
-        for (int localX = 0; localX < CHUNK_WIDTH; localX++)
-        {
-            for (int localZ = 0; localZ < CHUNK_WIDTH; localZ++)
+            for (int localX = 0; localX < CHUNK_WIDTH; localX++)
             {
-                for (int localY = 0; localY < SEA_LEVEL; localY++)
+                for (int localZ = 0; localZ < CHUNK_WIDTH; localZ++)
                 {
-                    if (blocks[localX, localY, localZ].Empty) { blocks[localX, localY, localZ] = BlockRegistry.WATER; }
+                    bool isDirt = Mathf.PerlinNoise(((rootX + localX) * 5) * 0.1f, ((rootZ + localZ) * 5) * 0.1f) > 0.5f;
+                    for (int localY = 0; localY < CHUNK_HEIGHT; localY++)
+                    {
+                        if (localY < FLOOR_LEVEL + (CHUNK_HEIGHT - FLOOR_LEVEL) * Mathf.PerlinNoise((rootX + localX) * PERLIN_SCALE, (rootZ + localZ) * PERLIN_SCALE) * 0.6f)
+                        {
+                            blocks[localX, localY, localZ] = isDirt ? BlockRegistry.DIRT : BlockRegistry.STONE;
+                        }
+                    }
                 }
             }
-        }
 
-        // Tree gens
-        for (int localX = 0; localX < CHUNK_WIDTH; localX++)
-        {
-            for (int localZ = 0; localZ < CHUNK_WIDTH; localZ++)
+            for (int localX = 0; localX < CHUNK_WIDTH; localX++)
             {
-                float treeChance = UnityEngine.Random.Range(0f, 1f);
-                if (treeChance < 0.007)
+                for (int localZ = 0; localZ < CHUNK_WIDTH; localZ++)
                 {
-                    Vector3Int topmost = GetTopmostBlock(localX, localZ, new Block[] { BlockRegistry.AIR, BlockRegistry.LEAVES });
-                    if (treeChance < 0.0035)
+                    for (int localY = 0; localY < SEA_LEVEL; localY++)
                     {
-                        GenerateTree(topmost.x, topmost.y, topmost.z);
+                        if (blocks[localX, localY, localZ].Empty) { blocks[localX, localY, localZ] = BlockRegistry.WATER; }
                     }
-                    else
+                }
+            }
+
+            // Tree gens
+            for (int localX = 0; localX < CHUNK_WIDTH; localX++)
+            {
+                for (int localZ = 0; localZ < CHUNK_WIDTH; localZ++)
+                {
+                    float treeChance = UnityEngine.Random.Range(0f, 1f);
+                    if (treeChance < 0.007)
                     {
-                        blocks[topmost.x, topmost.y, topmost.z] = BlockRegistry.DANDELION;
+                        Vector3Int topmost = GetTopmostBlock(localX, localZ, new Block[] { BlockRegistry.AIR, BlockRegistry.LEAVES });
+                        if (treeChance < 0.0035)
+                        {
+                            GenerateTree(topmost.x, topmost.y, topmost.z);
+                        }
+                        else
+                        {
+                            blocks[topmost.x, topmost.y, topmost.z] = BlockRegistry.DANDELION;
+                        }
                     }
                 }
             }
@@ -211,6 +231,7 @@ public class Chunk : MonoBehaviour
         CombineInstance[] combine = new CombineInstance[renderers.Length];
         // track which materials we need (empty meshes aren't merged, so need to align counts)
         List<RenderLayer> materialsNeeded = new List<RenderLayer>(renderers.Length);
+
         // render each layer
         for(int i = 0; i < renderers.Length; i++)
         {
@@ -223,7 +244,7 @@ public class Chunk : MonoBehaviour
         }
         displayMesh.CombineMeshes(combine, false, false);
         meshFilter.sharedMesh = displayMesh;
-
+        // Apply materials to each layer
         Material[] mats = new Material[materialsNeeded.Count];
         for (int i = 0; i < materialsNeeded.Count; i++)
         {
@@ -235,6 +256,14 @@ public class Chunk : MonoBehaviour
         colliderMesh.Clear();
         colliderMesh = ChunkColliderMeshGenerator.GetColliderMesh(this);
         meshCollider.sharedMesh = colliderMesh;
+        gameObject.layer = CHUNK_COLLIDER_LAYER;
+
+        // Collider mesh for interaction
+        interactMesh.Clear();
+        interactMesh = ChunkColliderMeshGenerator.GetInteractMesh(this);
+        interactCollider.sharedMesh = interactMesh;
+        interactFilter.sharedMesh = interactMesh;
+        interactCollider.gameObject.layer = SELECTION_RAYCAST_LAYER;
 
         shouldUpdate = false;
     }
