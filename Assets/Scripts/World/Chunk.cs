@@ -196,6 +196,10 @@ public class Chunk : MonoBehaviour
     {
         return blocks;
     }
+    public void SetBlocks(Block[,,] blocks)
+    {
+        this.blocks = blocks;
+    }
 
     public Block GetBlock(int x, int y, int z)
     {

@@ -1,14 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 public class WorldGenHandler : MonoBehaviour
 {
-    private int WORLD_SEED = 123123;
+    public readonly int WORLD_SEED = 666;
     public static int RENDER_DISTANCE = 11;
     public static WorldGenHandler INSTANCE = null;
 
-    Dictionary<(int, int), Chunk> ChunkDictionary = new Dictionary<(int, int), Chunk>();
+    public Dictionary<(int, int), Chunk> ChunkDictionary = new Dictionary<(int, int), Chunk>();
     Dictionary<(int, int), List<(Block, Vector3Int)>> WorldgenWaitlist = new Dictionary<(int, int), List<(Block, Vector3Int)>>();
 
     private float chunkUpdateTimer = 0;
@@ -62,6 +63,11 @@ public class WorldGenHandler : MonoBehaviour
         }
         INSTANCE = this;
         Random.InitState(WORLD_SEED);
+
+        if (File.Exists(@$"C:\Users\GGPC\Documents\{WorldGenHandler.INSTANCE.WORLD_SEED}.world"))
+        {
+            WorldSave.LoadWorldFromDisk(@$"C:\Users\GGPC\Documents\{WorldGenHandler.INSTANCE.WORLD_SEED}.world");
+        }
     }
 
     void Start()
@@ -136,7 +142,7 @@ public class WorldGenHandler : MonoBehaviour
     void TryGenNewChunk(int chunkX, int chunkZ)
     {
         if(ChunkDictionary.ContainsKey((chunkX, chunkZ))) {
-            Debug.LogError($"Tried to generate new chunk for existing coordinate {chunkX},{chunkZ}");
+            // Don't generate chunks that already exist!
             return;
         }
         GameObject newChunk = new GameObject("Chunk " + chunkX + "," + chunkZ);
@@ -146,6 +152,25 @@ public class WorldGenHandler : MonoBehaviour
         Chunk comp = newChunk.AddComponent<Chunk>();
         ChunkDictionary[(chunkX, chunkZ)] = comp; // Store first so chunk can detect itself as existing
         comp.Init();
+
+        ReRenderNeighbours(chunkX, chunkZ);
+    }
+
+    public void LoadChunk(int chunkX, int chunkZ, Block[,,] blocks)
+    {
+        if (ChunkDictionary.ContainsKey((chunkX, chunkZ)))
+        {
+            Debug.LogError($"Tried to load existing chunk at coordinates {chunkX},{chunkZ}");
+            return;
+        }
+        GameObject newChunk = new GameObject("Chunk " + chunkX + "," + chunkZ);
+        newChunk.transform.position = new Vector3(chunkX * Chunk.CHUNK_WIDTH * Chunk.BLOCK_SIZE, 0, chunkZ * Chunk.CHUNK_WIDTH * Chunk.BLOCK_SIZE);
+
+        // Create, store, init chunk
+        Chunk comp = newChunk.AddComponent<Chunk>();
+        comp.SetBlocks(blocks);
+        ChunkDictionary[(chunkX, chunkZ)] = comp; // Store first so chunk can detect itself as existing
+        comp.Init(genNewChunk: false);
 
         ReRenderNeighbours(chunkX, chunkZ);
     }

@@ -27,4 +27,9 @@ public class Registry<T> : IEnumerable where T : IHasId
     {
         return _registry.Values.GetEnumerator();
     }
+
+    public Dictionary<string, T>.ValueCollection GetValues()
+    {
+        return _registry.Values;
+    }
 }

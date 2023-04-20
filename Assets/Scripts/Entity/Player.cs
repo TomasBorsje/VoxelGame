@@ -44,7 +44,7 @@ public class Player : LivingEntity
     protected override void Update()
     {
         base.Update();
-        
+
         HandleGeneralInputs();
         if (ui.UiOpen)
         {
@@ -79,10 +79,15 @@ public class Player : LivingEntity
             }
         }
     }
+    private void OnApplicationQuit()
+    {
+        Debug.Log(@$"Saving world as C:\Users\GGPC\Documents\{WorldGenHandler.INSTANCE.WORLD_SEED}.world");
+        WorldSave.SaveWorldToDisk(@$"C:\Users\GGPC\Documents\{WorldGenHandler.INSTANCE.WORLD_SEED}.world");
+    }
     void HandleWorldInputs()
     {
         // Try to break block
-        if(Input.GetKeyDown(KeyCode.Mouse0))
+        if (Input.GetKeyDown(KeyCode.Mouse0))
         {
             TryBreakBlock();
         }
@@ -117,14 +122,14 @@ public class Player : LivingEntity
     {
         float scrollDir = Input.mouseScrollDelta.y;
         // Scroll down = slot increase
-        if(scrollDir < 0)
+        if (scrollDir < 0)
         {
             selectedSlot = (selectedSlot + 1) % HOTBAR_SIZE;
         }
         else
         {
             selectedSlot = (selectedSlot - 1) % HOTBAR_SIZE;
-            if(selectedSlot < 0) { selectedSlot += HOTBAR_SIZE; }
+            if (selectedSlot < 0) { selectedSlot += HOTBAR_SIZE; }
         }
     }
     void TryBreakBlock()
