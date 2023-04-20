@@ -64,6 +64,8 @@ public class TextureAtlas
         HDMaterial.ValidateMaterial(_transparentMaterial);
         renderMatDict[RenderLayer.Transparent] = _transparentMaterial;
 
+        renderMatDict[RenderLayer.Model] = _transparentMaterial;
+
         // generate water material
         Material _waterMaterial = new Material(Shader.Find(WaterShaderName));
         _waterMaterial.SetTexture("_MainTexture", atlasTex);

@@ -261,8 +261,8 @@ public class Chunk : MonoBehaviour
         // Collider mesh for interaction
         interactMesh.Clear();
         interactMesh = ChunkColliderMeshGenerator.GetInteractMesh(this);
-        interactCollider.sharedMesh = interactMesh;
         interactFilter.sharedMesh = interactMesh;
+        interactCollider.sharedMesh = interactMesh;
         interactCollider.gameObject.layer = SELECTION_RAYCAST_LAYER;
 
         shouldUpdate = false;

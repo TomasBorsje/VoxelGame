@@ -124,6 +124,7 @@ public class ChunkColliderMeshGenerator
 
     public static Mesh GetInteractMesh(Chunk chunk)
     {
+        
         Mesh mesh = new Mesh();
         mesh.name = "ChunkMeshInteractCollider";
         List<Vector3> vertices = new List<Vector3>();
@@ -141,8 +142,8 @@ public class ChunkColliderMeshGenerator
                     if (block.Empty) { continue; }
 
                     Vector3 blockPos = new Vector3(x, y, z);
-                    // Render a block
 
+                    // Render a block
                     if (block.HasCustomSelectionCollider)
                     {
                         block.AddSelectionCollider(vertices, triangles, blockPos);

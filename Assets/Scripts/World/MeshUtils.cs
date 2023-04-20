@@ -134,7 +134,7 @@ public static class MeshUtils
 
     public static void AddCrossMesh(Block block, IList<Vector3> vertices, IList<Vector2> uvs, IList<int> triangles, Vector3 pos)
     {
-        int vStart = vertices.Count-1;
+        int vStart = vertices.Count - 1;
         Rect uvArea = TextureAtlas.Instance.GetUVs(block.Id);
 
         Vector2 bottomLeft = uvArea.position;
@@ -292,18 +292,20 @@ public static class MeshUtils
 
     public static void AddSizedCubeMesh(List<Vector3> vertices, List<int> triangles, Vector3 blockPos, Vector3 size, Vector3 offset)
     {
-        Vector3[] newVertices = {
-            new Vector3 (0, 0, 0) +offset + blockPos,
-            new Vector3 (size.x, 0, 0) +offset + blockPos,
-            new Vector3 (size.x, size.y, 0) +offset + blockPos,
-            new Vector3 (0, size.y, 0) +offset + blockPos,
-            new Vector3 (0, size.y, size.z) +offset + blockPos,
-            new Vector3 (size.x, size.y, size.z) +offset + blockPos,
-            new Vector3 (size.x, 0, size.z) +offset + blockPos,
-            new Vector3 (0, 0, size.z) +offset + blockPos,
-        };
+        int verticesStart = vertices.Count;
 
-        int[] newTriangles = {
+        // Add faces
+        vertices.Add(new Vector3(0, 0, 0) + offset + blockPos);
+        vertices.Add(new Vector3(size.x, 0, 0) + offset + blockPos);
+        vertices.Add(new Vector3(size.x, size.y, 0) + offset + blockPos);
+        vertices.Add(new Vector3(0, size.y, 0) + offset + blockPos);
+        vertices.Add(new Vector3(0, size.y, size.z) + offset + blockPos);
+        vertices.Add(new Vector3(size.x, size.y, size.z) + offset + blockPos);
+        vertices.Add(new Vector3(size.x, 0, size.z) + offset + blockPos);
+        vertices.Add(new Vector3(0, 0, size.z) + offset + blockPos);
+
+        // Store LOCAL!!!! triangle indexes
+        int[] newTriangles = new int[] {
             0, 2, 1, //face front
 			0, 3, 2,
             2, 3, 4, //face top
@@ -318,7 +320,9 @@ public static class MeshUtils
 			0, 1, 6
         };
 
-        vertices.AddRange(newVertices);
-        triangles.AddRange(newTriangles);
+        foreach (int t in newTriangles)
+        {
+            triangles.Add(verticesStart + t);
+        }
     }
 }
