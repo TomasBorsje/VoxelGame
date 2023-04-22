@@ -10,7 +10,7 @@ public class Chunk : MonoBehaviour
     public static int BLOCK_SIZE = 1;
     public static int CHUNK_WIDTH = 16;
     public static int CHUNK_HEIGHT = 32;
-    public static float PERLIN_SCALE = 0.1f;
+    public static float PERLIN_SCALE = 0.015f;
     public static readonly int FLOOR_LEVEL = 16;
     public static readonly int SEA_LEVEL = 20;
     private int SELECTION_RAYCAST_LAYER = 6;
@@ -100,12 +100,20 @@ public class Chunk : MonoBehaviour
             {
                 for (int localZ = 0; localZ < CHUNK_WIDTH; localZ++)
                 {
-                    bool isDirt = Mathf.PerlinNoise(((rootX + localX) * 5) * 0.1f, ((rootZ + localZ) * 5) * 0.1f) > 0.5f;
+                    bool isDirt = Mathf.PerlinNoise((rootX + localX) * PERLIN_SCALE * 7, (rootZ + localZ) * PERLIN_SCALE * 7) < 0.8f;
                     for (int localY = 0; localY < CHUNK_HEIGHT; localY++)
                     {
-                        if (localY < FLOOR_LEVEL + (CHUNK_HEIGHT - FLOOR_LEVEL) * Mathf.PerlinNoise((rootX + localX) * PERLIN_SCALE, (rootZ + localZ) * PERLIN_SCALE) * 0.6f)
+                        float floorLevel = FLOOR_LEVEL + (CHUNK_HEIGHT - FLOOR_LEVEL) * Mathf.PerlinNoise((rootX + localX) * PERLIN_SCALE, (rootZ + localZ) * PERLIN_SCALE) * 0.8f;
+                        if (localY < floorLevel)
                         {
-                            blocks[localX, localY, localZ] = isDirt ? BlockRegistry.DIRT : BlockRegistry.STONE;
+                            if(localY+1 > floorLevel && isDirt)
+                            {
+                                blocks[localX, localY, localZ] = BlockRegistry.GRASS;
+                            }
+                            else
+                            {
+                                blocks[localX, localY, localZ] = isDirt ? BlockRegistry.DIRT : BlockRegistry.STONE;
+                            }
                         }
                     }
                 }
@@ -131,6 +139,10 @@ public class Chunk : MonoBehaviour
                     if (treeChance < 0.007)
                     {
                         Vector3Int topmost = GetTopmostBlock(localX, localZ, new Block[] { BlockRegistry.AIR, BlockRegistry.LEAVES });
+                        if(blocks[topmost.x,topmost.y-1,topmost.z] == BlockRegistry.WATER)
+                        {
+                            continue;
+                        }
                         if (treeChance < 0.0035)
                         {
                             GenerateTree(topmost.x, topmost.y, topmost.z);
@@ -177,7 +189,7 @@ public class Chunk : MonoBehaviour
         {
             if (!Array.Exists(ignore, element => element.Id == blocks[x, y, z].Id))
             {
-                return new Vector3Int(x, y, z);
+                return new Vector3Int(x, Mathf.Min(y+1, CHUNK_HEIGHT-1), z);
             }
         }
         return new Vector3Int(x, CHUNK_HEIGHT, z);

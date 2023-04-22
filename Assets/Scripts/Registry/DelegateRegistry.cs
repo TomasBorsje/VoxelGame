@@ -23,4 +23,14 @@ public class DelegateRegistry<T> where T : Delegate
         }
         return _registry[id];
     }
+
+    public IEnumerator GetEnumerator()
+    {
+        return _registry.Values.GetEnumerator();
+    }
+
+    public Dictionary<string, T>.ValueCollection GetValues()
+    {
+        return _registry.Values;
+    }
 }

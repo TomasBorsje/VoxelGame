@@ -10,6 +10,7 @@ public class Player : LivingEntity
     public static int INVENTORY_SIZE = 36;
     public static int HOTBAR_SIZE = 9;
     static LayerMask RaycastMask;
+    static float UpdateFrequency = 0.1f;
 
     private static readonly KeyCode[] HOTBAR_KEYCODES = {
          KeyCode.Alpha1,
@@ -28,8 +29,16 @@ public class Player : LivingEntity
     public ItemStack mouseHeldItem = ItemStack.EMPTY;
     PlayerUI ui;
 
+    // Crafting
+    private float updateTimer = 0;
+    List<CraftingRecipe> cachedCraftableRecipes = new List<CraftingRecipe>();
+
     public ItemContainer Inventory { get => inventory; }
     public int SelectedSlot { get => selectedSlot; }
+    public List<CraftingRecipe> GetCraftableRecipes()
+    {
+        return cachedCraftableRecipes;
+    }
     private void Awake()
     {
         RaycastMask = LayerMask.GetMask(new string[] { "Chunk", "SelectionRaycast" });
@@ -44,6 +53,12 @@ public class Player : LivingEntity
     protected override void Update()
     {
         base.Update();
+        updateTimer += Time.deltaTime;
+        if(updateTimer > UpdateFrequency)
+        {
+            TimedUpdate();
+            updateTimer = 0;
+        }
 
         HandleGeneralInputs();
         if (ui.UiOpen)
@@ -55,6 +70,14 @@ public class Player : LivingEntity
             HandleWorldInputs();
         }
         ui.UpdateUI();
+    }
+    private void TimedUpdate()
+    {
+        UpdateCraftingRecipes();
+    }
+    void UpdateCraftingRecipes() 
+    {
+        cachedCraftableRecipes = RecipeRegistry.GetCraftableRecipes(inventory);
     }
     private void LateUpdate()
     {
@@ -77,6 +100,11 @@ public class Player : LivingEntity
             {
                 ui.ShowScreen(PlayerUI.Screen.None);
             }
+        }
+        else if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            // Close all screens
+            ui.ShowScreen(PlayerUI.Screen.None);
         }
     }
     private void OnApplicationQuit()
@@ -152,7 +180,7 @@ public class Player : LivingEntity
                 // Delete block
                 chunkPos.Item1.SetBlock(chunkPos.Item2.x, chunkPos.Item2.y, chunkPos.Item2.z, BlockRegistry.AIR);
                 // Spawn item entity!
-                ItemStackEntity.CreateItemStackEntity(Vector3Int.FloorToInt(forwardHit) + new Vector3(0.5f, 0.5f, 0.5f), new ItemStack(BlockItemRegistry.ITEMS.Get(hitBlock.Id)()));
+                ItemStackEntity.CreateItemStackEntity(Vector3Int.FloorToInt(forwardHit) + new Vector3(0.5f, 0.5f, 0.5f), new ItemStack(ItemRegistry.ITEMS.Get(hitBlock.Id)()));
             }
         }
     }

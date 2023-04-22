@@ -25,6 +25,10 @@ public class ItemContainer
     {
         return _itemStacks[slot];
     }
+    public ItemStack[] GetStacks()
+    {
+        return _itemStacks;
+    }
     // Adds an itemstack to an inventory, merging stacks along the way. Returns the remainder.
     public ItemStack AddStack(ItemStack stack)
     {

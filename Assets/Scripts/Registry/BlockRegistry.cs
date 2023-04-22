@@ -9,6 +9,7 @@ public static class BlockRegistry
 
     public static readonly Block AIR = Blocks.Register(new Block("game:air", "Air", RenderLayer.Transparent));
     public static readonly Block STONE = Blocks.Register(new Block("game:stone", "Stone", RenderLayer.Opaque));
+    public static readonly Block GRASS = Blocks.Register(new Block("game:grass", "Grass", RenderLayer.Opaque));
     public static readonly Block DIRT = Blocks.Register(new Block("game:dirt", "Dirt", RenderLayer.Opaque));
     public static readonly Block PLANKS = Blocks.Register(new Block("game:planks", "Planks", RenderLayer.Opaque));
     public static readonly Block GLASS = Blocks.Register(new Block("game:glass", "Glass", RenderLayer.Transparent));

@@ -6,13 +6,17 @@ public class PlayerUI
 {
     public enum Screen { None, Inventory }
     public static float UI_SCALE = 2;
+    public static int SHOWN_RECIPES = 5;
 
     private Player player;
     GameObject canvas;
     GameObject hotbarDisplay;
+
     HotbarSlotDisplay[] hotbarSlots = new HotbarSlotDisplay[Player.HOTBAR_SIZE];
     InventorySlotDisplay[] invSlots = new InventorySlotDisplay[Player.INVENTORY_SIZE];
+    CraftingRecipeDisplay[] craftingDisplays = new CraftingRecipeDisplay[SHOWN_RECIPES];
     MouseHeldSlotDisplay mouseHeldSlot;
+
     GameObject inventoryDisplay;
     private Screen currentScreen;
     FirstPersonLook lookScript;
@@ -56,18 +60,29 @@ public class PlayerUI
             int x = invSlot % Player.HOTBAR_SIZE;
             int y = invSlot / Player.HOTBAR_SIZE;
 
-            ((RectTransform)slotHandler.transform).localPosition = new Vector2((40 * x - 40 * 4.5f)*(UI_SCALE+1), (-40+(40*y)) * (UI_SCALE+1));
-            slotHandler.transform.localScale = Vector3.one * (UI_SCALE+1);
+            if(y==0) { y = -1; }
+
+            ((RectTransform)slotHandler.transform).localPosition = new Vector2((40 * x - 40 * 4.5f) * (UI_SCALE + 1), (-40 + (40 * y)) * (UI_SCALE + 1));
+            slotHandler.transform.localScale = Vector3.one * (UI_SCALE + 1);
+        }
+        // Create individual crafting displays and add to inventory object
+        for (int craftSlot = 0; craftSlot < SHOWN_RECIPES; craftSlot++)
+        {
+            GameObject recipeDisplay = GameObject.Instantiate(Resources.Load<GameObject>("Prefabs/UI/CraftingRecipeDisplay"));
+            craftingDisplays[craftSlot] = recipeDisplay.GetComponent<CraftingRecipeDisplay>();
+            craftingDisplays[craftSlot].Init(this.player, craftSlot);
+            recipeDisplay.transform.SetParent(inventoryDisplay.transform);
+
+            ((RectTransform)recipeDisplay.transform).localPosition = new Vector2((200) * (UI_SCALE + 1), (80 - (40 * craftSlot)) * (UI_SCALE + 1));
+            recipeDisplay.transform.localScale = Vector3.one * (UI_SCALE + 1);
         }
 
         // Create inv slot for mouse held item
-
-            GameObject heldSlotHandler = GameObject.Instantiate(Resources.Load<GameObject>("Prefabs/UI/MouseHeldSlotDisplay"));
-            mouseHeldSlot = heldSlotHandler.GetComponent<MouseHeldSlotDisplay>();
-            mouseHeldSlot.Init(this.player); // -1 for mouse held item
-            heldSlotHandler.transform.SetParent(inventoryDisplay.transform);
-            heldSlotHandler.transform.localScale = Vector3.one * (UI_SCALE + 1);
-        
+        GameObject heldSlotHandler = GameObject.Instantiate(Resources.Load<GameObject>("Prefabs/UI/MouseHeldSlotDisplay"));
+        mouseHeldSlot = heldSlotHandler.GetComponent<MouseHeldSlotDisplay>();
+        mouseHeldSlot.Init(this.player); // -1 for mouse held item
+        heldSlotHandler.transform.SetParent(inventoryDisplay.transform);
+        heldSlotHandler.transform.localScale = Vector3.one * (UI_SCALE + 1);
 
         ShowScreen(Screen.None);
     }
@@ -98,7 +113,7 @@ public class PlayerUI
         {
             case Screen.None:
                 {
-                    foreach(InventorySlotDisplay invSlot in invSlots)
+                    foreach (InventorySlotDisplay invSlot in invSlots)
                     {
                         invSlot.hovered = false;
                     }

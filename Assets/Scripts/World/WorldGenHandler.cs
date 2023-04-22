@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class WorldGenHandler : MonoBehaviour
 {
-    public readonly int WORLD_SEED = 666;
+    public readonly int WORLD_SEED = 12345;
     public static int RENDER_DISTANCE = 11;
     public static WorldGenHandler INSTANCE = null;
 
@@ -13,7 +13,7 @@ public class WorldGenHandler : MonoBehaviour
     Dictionary<(int, int), List<(Block, Vector3Int)>> WorldgenWaitlist = new Dictionary<(int, int), List<(Block, Vector3Int)>>();
 
     private float chunkUpdateTimer = 0;
-    GameObject player;
+    public GameObject player;
 
     public (Chunk, Vector3Int) WorldPosToChunkPos(Vector3 worldPos)
     {
@@ -63,17 +63,19 @@ public class WorldGenHandler : MonoBehaviour
         }
         INSTANCE = this;
         Random.InitState(WORLD_SEED);
-
-        if (File.Exists(@$"C:\Users\GGPC\Documents\{WorldGenHandler.INSTANCE.WORLD_SEED}.world"))
-        {
-            WorldSave.LoadWorldFromDisk(@$"C:\Users\GGPC\Documents\{WorldGenHandler.INSTANCE.WORLD_SEED}.world");
-        }
     }
 
     void Start()
     {
         player = GameObject.FindWithTag("Player");
-        for(int x = -RENDER_DISTANCE; x < RENDER_DISTANCE; x++)
+
+        if (File.Exists(@$"C:\Users\GGPC\Documents\{WorldGenHandler.INSTANCE.WORLD_SEED}.world"))
+        {
+            WorldSave.LoadWorldFromDisk(@$"C:\Users\GGPC\Documents\{WorldGenHandler.INSTANCE.WORLD_SEED}.world");
+            Debug.Log(@$"Loaded world C:\Users\GGPC\Documents\{WorldGenHandler.INSTANCE.WORLD_SEED}.world from disk!");
+        }
+
+        for (int x = -RENDER_DISTANCE; x < RENDER_DISTANCE; x++)
         {
             for(int z = -RENDER_DISTANCE; z < RENDER_DISTANCE; z++)
             {

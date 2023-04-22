@@ -71,6 +71,13 @@ public class ItemStack
         return stackToMerge.ChangeCount(-moveAmount);
     }
 
+    public bool CanMerge(ItemStack stackToMerge)
+    {
+        return !(stackToMerge == ItemStack.EMPTY
+            || stackToMerge._item.Id != _item.Id
+            || _count + stackToMerge.Count > _item.MaxStackSize);
+    }
+
     public ItemStack ChangeCount(int change)
     {
         _count += change;

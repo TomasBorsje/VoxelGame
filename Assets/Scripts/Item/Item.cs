@@ -6,9 +6,9 @@ public abstract class Item : IHasId
 {
     public enum UseResult { Used, Pass }
 
-    bool _consumable = true;
+    protected bool _consumable = true;
     protected string _id = "";
-    int _maxStackSize = 100;
+    protected int _maxStackSize = 100;
     public bool Consumable { get => _consumable; }
     public string Id { get => _id; }
     public int MaxStackSize { get => _maxStackSize; }
