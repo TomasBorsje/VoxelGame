@@ -21,7 +21,6 @@ public class BlockItem : Item
         }
         RaycastHit hit;
         Transform head = entity.GetHeadTransform();
-        // Does the ray intersect any objects excluding the player layer
         if (Physics.Raycast(head.position, head.TransformDirection(Vector3.forward), out hit, entity is Player ? ((Player)entity).reachDistance : 5, layerMask: RaycastMask))
         {
             Debug.DrawRay(head.position, head.TransformDirection(Vector3.forward) * hit.distance, Color.blue);
@@ -30,6 +29,10 @@ public class BlockItem : Item
             if (chunkPos.Item1.GetBlock(chunkPos.Item2.x, chunkPos.Item2.y, chunkPos.Item2.z).Empty)
             {
                 chunkPos.Item1.SetBlock(chunkPos.Item2.x, chunkPos.Item2.y, chunkPos.Item2.z, _block);
+                if(_block.HasBlockEntity)
+                {
+                    chunkPos.Item1.AddBlockEntity(_block.GetNewBlockEntity(chunkPos.Item1, chunkPos.Item2), chunkPos.Item2);
+                }
                 return UseResult.Used;
             }
         }

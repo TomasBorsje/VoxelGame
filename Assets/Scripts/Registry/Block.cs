@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -14,12 +15,14 @@ public class Block : IHasId
     protected bool _hasCustomModel;
     protected bool _hasCustomCollider;
     protected bool _hasCustomSelectionCollider;
+    protected bool _hasBlockEntity;
     public string Name { get => _name; }
     public string Id { get => _id; }
     public RenderLayer RenderLayer { get => _layer; }
     public bool HasCustomModel => _hasCustomModel;
     public bool HasCustomCollider => _hasCustomCollider;
     public bool HasCustomSelectionCollider => _hasCustomSelectionCollider;
+    public bool HasBlockEntity => _hasBlockEntity;
 
     public Block(string id, string name, RenderLayer layer, bool hasCustomModel = false, bool hasCustomCollider = false, bool hasCustomSelectionCollider = false)
     {
@@ -36,4 +39,11 @@ public class Block : IHasId
     public virtual void ApplyCustomModel(List<Vector3> vertices, List<Vector2> uvs, List<int> tris, Vector3 blockPos) { }
     public virtual void AddCustomCollider(List<Vector3> vertices, List<int> tris, Vector3 blockPos) { }
     public virtual void AddSelectionCollider(List<Vector3> vertices, List<int> tris, Vector3 blockPos) { }
+    public virtual BlockEntity GetNewBlockEntity(Chunk chunk, Vector3Int pos)
+    {
+        throw new NotImplementedException($"{_id} does not have a block entity!");
+    }
+
+    internal virtual void Tick(Vector3Int worldPos)
+    { }
 }

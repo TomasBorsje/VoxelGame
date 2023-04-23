@@ -39,6 +39,8 @@ public class Chunk : MonoBehaviour
 
     // X, Y, Z
     Block[,,] blocks = new Block[CHUNK_WIDTH, CHUNK_HEIGHT, CHUNK_WIDTH];
+    // Tile entities
+    Dictionary<Vector3Int, BlockEntity> blockEntities = new();
     public void Init(bool genNewChunk = true)
     {
         rootX = (int)transform.position.x;
@@ -160,6 +162,19 @@ public class Chunk : MonoBehaviour
         initialized = true;
         RenderMesh();
     }
+    public void AddBlockEntity(BlockEntity entity, Vector3Int pos)
+    {
+        blockEntities[pos] = entity;
+    }
+
+    internal void Tick()
+    {
+        // Tick all blockentities
+        foreach(BlockEntity blockEntity in blockEntities.Values)
+        {
+            blockEntity.Tick();
+        }
+    }
 
     void GenerateTree(int x, int y, int z)
     {
@@ -226,7 +241,21 @@ public class Chunk : MonoBehaviour
             return;
             //WorldGenHandler.INSTANCE.TryGenerateBlock(block, new Vector3Int(chunkX * CHUNK_WIDTH + x, y, chunkZ * CHUNK_WIDTH + z));
         }
+        if(blocks[x, y, z] == block)
+        {
+            // Don't reset the same block over and over.
+            return;
+        }
         blocks[x, y, z] = block;
+        if(block == BlockRegistry.AIR)
+        {
+            Vector3Int chunkPos = new Vector3Int(x, y, z);
+            if(blockEntities.ContainsKey(chunkPos))
+            {
+                blockEntities[chunkPos].OnDelete();
+                blockEntities.Remove(chunkPos);
+            }
+        }
         MarkUpdate();
         WorldGenHandler.INSTANCE.ReRenderNeighbours(chunkX, chunkZ);
     }

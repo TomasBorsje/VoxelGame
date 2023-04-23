@@ -8,6 +8,10 @@ public class WorldGenHandler : MonoBehaviour
     public readonly int WORLD_SEED = 12345;
     public static int RENDER_DISTANCE = 11;
     public static WorldGenHandler INSTANCE = null;
+    public static readonly int TICKS_PER_SECOND = 20;
+    public int CurrentTick => currentTick;
+    private int currentTick = 0;
+    float tickTimer = 0;
 
     public Dictionary<(int, int), Chunk> ChunkDictionary = new Dictionary<(int, int), Chunk>();
     Dictionary<(int, int), List<(Block, Vector3Int)>> WorldgenWaitlist = new Dictionary<(int, int), List<(Block, Vector3Int)>>();
@@ -138,6 +142,24 @@ public class WorldGenHandler : MonoBehaviour
                 Destroy(ChunkDictionary[key].gameObject);
                 ChunkDictionary.Remove(key);
             }
+        }
+
+        tickTimer += Time.deltaTime;
+        if(tickTimer > 1f/TICKS_PER_SECOND)
+        {
+            tickTimer = 0;
+            currentTick++;
+            // Tick the entire world!
+            TickWorld();
+        }
+    }
+
+    private void TickWorld()
+    {
+        foreach (Chunk chunk in ChunkDictionary.Values)
+        {
+            // Tick each chunk, which will tick all block entities, etc.
+            chunk.Tick();
         }
     }
 
