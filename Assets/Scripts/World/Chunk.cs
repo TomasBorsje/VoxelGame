@@ -15,6 +15,8 @@ public class Chunk : MonoBehaviour
     public static readonly int SEA_LEVEL = 20;
     private int SELECTION_RAYCAST_LAYER = 6;
     private int CHUNK_COLLIDER_LAYER = 7;
+    private static float X_GEN_OFFSET = 0;
+    private static float Z_GEN_OFFSET = 0;
     public static readonly int RAYCAST_MASK = (1 << 6) | 7;
 
     int rootX, rootY, rootZ;
@@ -87,6 +89,7 @@ public class Chunk : MonoBehaviour
         // Init to air
         if (genNewChunk)
         {
+            // Init to air only
             for (int localX = 0; localX < CHUNK_WIDTH; localX++)
             {
                 for (int localZ = 0; localZ < CHUNK_WIDTH; localZ++)
@@ -98,29 +101,34 @@ public class Chunk : MonoBehaviour
                 }
             }
 
+            // Terrain gen
             for (int localX = 0; localX < CHUNK_WIDTH; localX++)
             {
                 for (int localZ = 0; localZ < CHUNK_WIDTH; localZ++)
                 {
-                    bool isDirt = Mathf.PerlinNoise((rootX + localX) * PERLIN_SCALE * 7, (rootZ + localZ) * PERLIN_SCALE * 7) < 0.8f;
                     for (int localY = 0; localY < CHUNK_HEIGHT; localY++)
                     {
-                        float floorLevel = FLOOR_LEVEL + (CHUNK_HEIGHT - FLOOR_LEVEL) * Mathf.PerlinNoise((rootX + localX) * PERLIN_SCALE, (rootZ + localZ) * PERLIN_SCALE) * 0.8f;
+                        float floorLevel = FLOOR_LEVEL + (CHUNK_HEIGHT - FLOOR_LEVEL) * Mathf.PerlinNoise((rootX + localX + X_GEN_OFFSET) * PERLIN_SCALE, (rootZ + localZ + Z_GEN_OFFSET) * PERLIN_SCALE) * 0.8f;
                         if (localY < floorLevel)
                         {
-                            if(localY+1 > floorLevel && isDirt)
+                            if(localY+1 > floorLevel)
                             {
                                 blocks[localX, localY, localZ] = BlockRegistry.GRASS;
                             }
+                            else if(localY+6 > floorLevel)
+                            {
+                                blocks[localX, localY, localZ] = BlockRegistry.DIRT;
+                            }
                             else
                             {
-                                blocks[localX, localY, localZ] = isDirt ? BlockRegistry.DIRT : BlockRegistry.STONE;
+                                blocks[localX, localY, localZ] = BlockRegistry.STONE;
                             }
                         }
                     }
                 }
             }
 
+            // Ocean gen
             for (int localX = 0; localX < CHUNK_WIDTH; localX++)
             {
                 for (int localZ = 0; localZ < CHUNK_WIDTH; localZ++)
@@ -132,7 +140,23 @@ public class Chunk : MonoBehaviour
                 }
             }
 
-            // Tree gens
+            // Cave gen
+            for (int localX = 0; localX < CHUNK_WIDTH; localX++)
+            {
+                for (int localZ = 0; localZ < CHUNK_WIDTH; localZ++)
+                {
+                    for (int localY = 1; localY < CHUNK_HEIGHT; localY++)
+                    {
+                        bool isCave = Perlin.Noise((rootX + localX + X_GEN_OFFSET) * PERLIN_SCALE * 4, localY * PERLIN_SCALE * 4, (rootZ + localZ + Z_GEN_OFFSET) * PERLIN_SCALE * 4) < -0.5f;
+                        if(isCave)
+                        {
+                            blocks[localX, localY, localZ] = BlockRegistry.AIR;
+                        }
+                    }
+                }
+            }
+
+            // Tree gen
             for (int localX = 0; localX < CHUNK_WIDTH; localX++)
             {
                 for (int localZ = 0; localZ < CHUNK_WIDTH; localZ++)
@@ -141,7 +165,7 @@ public class Chunk : MonoBehaviour
                     if (treeChance < 0.007)
                     {
                         Vector3Int topmost = GetTopmostBlock(localX, localZ, new Block[] { BlockRegistry.AIR, BlockRegistry.LEAVES });
-                        if(blocks[topmost.x,topmost.y-1,topmost.z] == BlockRegistry.WATER)
+                        if(blocks[topmost.x,topmost.y-1,topmost.z] != BlockRegistry.GRASS)
                         {
                             continue;
                         }

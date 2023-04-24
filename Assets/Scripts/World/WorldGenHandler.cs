@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class WorldGenHandler : MonoBehaviour
 {
-    public readonly int WORLD_SEED = 12345;
+    public readonly int WORLD_SEED = 12341234;
     public static int RENDER_DISTANCE = 11;
     public static WorldGenHandler INSTANCE = null;
     public static readonly int TICKS_PER_SECOND = 20;
