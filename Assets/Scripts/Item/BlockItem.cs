@@ -29,10 +29,6 @@ public class BlockItem : Item
             if (chunkPos.Item1.GetBlock(chunkPos.Item2.x, chunkPos.Item2.y, chunkPos.Item2.z).Empty)
             {
                 chunkPos.Item1.SetBlock(chunkPos.Item2.x, chunkPos.Item2.y, chunkPos.Item2.z, _block);
-                if(_block.HasBlockEntity)
-                {
-                    chunkPos.Item1.AddBlockEntity(_block.GetNewBlockEntity(chunkPos.Item1, chunkPos.Item2), chunkPos.Item2);
-                }
                 return UseResult.Used;
             }
         }

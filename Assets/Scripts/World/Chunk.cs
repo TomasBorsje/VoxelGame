@@ -9,9 +9,9 @@ public class Chunk : MonoBehaviour
 {
     public static int BLOCK_SIZE = 1;
     public static int CHUNK_WIDTH = 16;
-    public static int CHUNK_HEIGHT = 32;
-    public static float PERLIN_SCALE = 0.015f;
-    public static readonly int FLOOR_LEVEL = 16;
+    public static int CHUNK_HEIGHT = 48;
+    public static float PERLIN_SCALE = 0.02f;
+    public static readonly int FLOOR_LEVEL = 24;
     public static readonly int SEA_LEVEL = 20;
     private int SELECTION_RAYCAST_LAYER = 6;
     private int CHUNK_COLLIDER_LAYER = 7;
@@ -198,7 +198,7 @@ public class Chunk : MonoBehaviour
         }
     }
 
-    Vector3Int GetTopmostBlock(int x, int z, Block[] ignore)
+   public Vector3Int GetTopmostBlock(int x, int z, Block[] ignore)
     {
         for (int y = CHUNK_HEIGHT - 1; y > 0; y--)
         {
@@ -210,7 +210,7 @@ public class Chunk : MonoBehaviour
         return new Vector3Int(x, CHUNK_HEIGHT, z);
     }
 
-    Vector3Int GetTopmostBlock(int x, int z)
+    public Vector3Int GetTopmostBlock(int x, int z)
     {
         return GetTopmostBlock(x, z, new Block[] {BlockRegistry.AIR});
     }
@@ -247,14 +247,18 @@ public class Chunk : MonoBehaviour
             return;
         }
         blocks[x, y, z] = block;
-        if(block == BlockRegistry.AIR)
-        {
-            Vector3Int chunkPos = new Vector3Int(x, y, z);
+        Vector3Int chunkPos = new Vector3Int(x, y, z);
+        if (block == BlockRegistry.AIR)
+        { 
             if(blockEntities.ContainsKey(chunkPos))
             {
                 blockEntities[chunkPos].OnDelete();
                 blockEntities.Remove(chunkPos);
             }
+        }
+        else if (block.HasBlockEntity)
+        {
+            AddBlockEntity(block.GetNewBlockEntity(this, chunkPos), chunkPos);
         }
         MarkUpdate();
         WorldGenHandler.INSTANCE.ReRenderNeighbours(chunkX, chunkZ);

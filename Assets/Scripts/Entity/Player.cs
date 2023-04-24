@@ -109,8 +109,9 @@ public class Player : LivingEntity
     }
     private void OnApplicationQuit()
     {
-        Debug.Log(@$"Saving world as C:\Users\GGPC\Documents\{WorldGenHandler.INSTANCE.WORLD_SEED}.world");
-        WorldSave.SaveWorldToDisk(@$"C:\Users\GGPC\Documents\{WorldGenHandler.INSTANCE.WORLD_SEED}.world");
+        Debug.Log(@$"Saving world...");
+        WorldPersistence.SaveWorldToDisk(WorldGenHandler.INSTANCE.WORLD_SEED.ToString());
+        WorldPersistence.SavePlayerToDisk(WorldGenHandler.INSTANCE.WORLD_SEED.ToString());
     }
     void HandleWorldInputs()
     {

@@ -73,18 +73,34 @@ public class WorldGenHandler : MonoBehaviour
     {
         player = GameObject.FindWithTag("Player");
 
-        if (File.Exists(@$"C:\Users\GGPC\Documents\{WorldGenHandler.INSTANCE.WORLD_SEED}.world"))
+        if (File.Exists(WorldPersistence.GetFilePath(INSTANCE.WORLD_SEED.ToString(), WorldPersistence.WORLD_FILENAME)))
         {
-            WorldSave.LoadWorldFromDisk(@$"C:\Users\GGPC\Documents\{WorldGenHandler.INSTANCE.WORLD_SEED}.world");
-            Debug.Log(@$"Loaded world C:\Users\GGPC\Documents\{WorldGenHandler.INSTANCE.WORLD_SEED}.world from disk!");
+            WorldPersistence.LoadWorldFromDisk(INSTANCE.WORLD_SEED.ToString());
+            Debug.Log(@$"Loaded world from disk!");
         }
-
         for (int x = -RENDER_DISTANCE; x < RENDER_DISTANCE; x++)
         {
             for(int z = -RENDER_DISTANCE; z < RENDER_DISTANCE; z++)
             {
                 TryGenNewChunk(x, z);
             }
+        }
+        if (File.Exists(WorldPersistence.GetFilePath(INSTANCE.WORLD_SEED.ToString(), WorldPersistence.PLAYER_FILENAME)))
+        {
+            WorldPersistence.LoadPlayerFromDisk(INSTANCE.WORLD_SEED.ToString());
+            Debug.Log(@$"Loaded player from disk!");
+        }
+        else
+        {
+            // Get player chunk coordinates
+            int playerChunkX = Mathf.FloorToInt(player.transform.position.x / (Chunk.CHUNK_WIDTH * Chunk.BLOCK_SIZE));
+            int playerChunkZ = Mathf.FloorToInt(player.transform.position.z / (Chunk.CHUNK_WIDTH * Chunk.BLOCK_SIZE));
+
+            Chunk playerChunk = GetChunk(playerChunkX, playerChunkZ);
+            int localX = player.transform.position.x % Chunk.CHUNK_WIDTH < 0 ? (int)(player.transform.position.x % Chunk.CHUNK_WIDTH + Chunk.CHUNK_WIDTH) : (int)(player.transform.position.x % Chunk.CHUNK_WIDTH);
+            int localZ = player.transform.position.z % Chunk.CHUNK_WIDTH < 0 ? (int)(player.transform.position.z % Chunk.CHUNK_WIDTH + Chunk.CHUNK_WIDTH) : (int)(player.transform.position.z % Chunk.CHUNK_WIDTH);
+            Vector3Int spawnPos = playerChunk.GetTopmostBlock(localX, localZ);
+            player.transform.position = spawnPos + new Vector3(0, 2, 0);
         }
     }
 
